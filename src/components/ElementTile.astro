@@ -1,0 +1,73 @@
+---
+import { getCategoryColor } from '../utils/elements';
+import type { ElementData } from '../utils/elements';
+
+interface Props { element: ElementData; }
+const { element: e } = Astro.props;
+const glowColor = getCategoryColor(e.category);
+---
+
+<a
+  href={`/element/${e.z}`}
+  class="element-tile"
+  style={[
+    `grid-column: ${e.col};`,
+    `grid-row: ${e.row};`,
+    `--tile-glow: ${glowColor};`,
+    `animation-delay: ${(e.z - 1) * 10}ms;`,
+  ].join(' ')}
+  data-category={e.category}
+  data-z={String(e.z)}
+>
+  <span class="tile-z">{e.z}</span>
+  <span class="tile-symbol" style={`color:${glowColor};text-shadow:0 0 8px color-mix(in srgb,${glowColor} 40%,transparent);`}>{e.symbol}</span>
+  <span class="tile-name-en">{e.nameEn}</span>
+  <span class="tile-name-zh">{e.nameZh}</span>
+</a>
+
+<style>
+  .element-tile {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 3px 3px; border-radius: var(--radius-sm);
+    background: var(--bg-card); border: 1px solid color-mix(in srgb, var(--tile-glow) 18%, transparent);
+    text-decoration: none; color: var(--text-primary);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative; cursor: pointer; animation: fadeInUp 0.5s ease-out both;
+    min-width: 0; user-select: none; -webkit-tap-highlight-color: transparent;
+  }
+  .element-tile::before {
+    content: ''; position: absolute; inset: -1px; border-radius: inherit;
+    background: var(--tile-glow); opacity: 0; transition: opacity 0.25s; z-index: -1; filter: blur(6px);
+  }
+  .element-tile:hover, .element-tile:focus-visible {
+    transform: translateY(-3px) scale(1.08); background: var(--bg-card-hover);
+    border-color: color-mix(in srgb, var(--tile-glow) 55%, transparent);
+    box-shadow: 0 8px 30px color-mix(in srgb, var(--tile-glow) 25%, transparent),
+                0 0 20px color-mix(in srgb, var(--tile-glow) 15%, transparent);
+    z-index: 10;
+  }
+  .element-tile:hover::before, .element-tile:focus-visible::before { opacity: 0.6; }
+  .element-tile:active { transform: scale(0.96); }
+  .tile-z {
+    font-family: var(--font-mono); font-size: 0.5rem; font-weight: 500;
+    color: var(--text-dim); line-height: 1;
+  }
+  .tile-symbol {
+    font-family: var(--font-mono); font-size: clamp(0.85rem, 1.7vw, 1.25rem);
+    font-weight: 700; line-height: 1.1;
+  }
+  .tile-name-en {
+    font-size: 0.48rem; color: var(--text-secondary); line-height: 1.2;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+  }
+  .tile-name-zh { font-size: 0.55rem; color: var(--text-dim); line-height: 1.2; font-weight: 500; }
+
+  .category-filtering .element-tile:not(.category-match),
+  .search-filtering .element-tile:not(.search-match) {
+    opacity: 0.12; filter: grayscale(0.7) brightness(0.5); pointer-events: none;
+  }
+  .category-filtering .element-tile.category-match { animation: pulseGlow 2s ease-in-out infinite; }
+  .search-filtering .element-tile.search-match {
+    box-shadow: 0 0 16px color-mix(in srgb, var(--tile-glow) 30%, transparent);
+  }
+</style>

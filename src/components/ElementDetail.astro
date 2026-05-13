@@ -1,0 +1,181 @@
+---
+import ElectronShell from './ElectronShell.astro';
+import { getCategoryColor, formatTemperature, formatDensity } from '../utils/elements';
+import type { ElementData } from '../utils/elements';
+
+interface Props { element: ElementData; }
+const { element: e } = Astro.props;
+const glowColor = getCategoryColor(e.category);
+---
+
+<article class="detail-root">
+  <div class="detail-header" style={`--accent: ${glowColor};`}>
+    <div class="detail-top-row">
+      <a href="/" class="back-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="m15 18-6-6 6-6"/>
+        </svg>
+        Back to Table
+      </a>
+      <div class="detail-nav">
+        {e.z > 1 && <a href={`/element/${e.z - 1}`} class="nav-arrow" title="Previous element">&larr; #{e.z - 1}</a>}
+        <span class="nav-current">#{e.z}</span>
+        {e.z < 118 && <a href={`/element/${e.z + 1}`} class="nav-arrow" title="Next element">#{e.z + 1} &rarr;</a>}
+      </div>
+    </div>
+    <div class="detail-hero">
+      <span class="detail-z">{e.z}</span>
+      <h1 class="detail-symbol" style={`color: ${glowColor}; text-shadow: 0 0 30px color-mix(in srgb, ${glowColor} 50%, transparent);`}>
+        {e.symbol}
+      </h1>
+      <div class="detail-names">
+        <span class="detail-name-en">{e.nameEn}</span>
+        <span class="detail-name-zh">{e.nameZh}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="detail-grid">
+    <div class="prop-card glass-glow">
+      <h3>Basic Properties</h3>
+      <dl class="prop-list">
+        <div class="prop-row"><dt>Atomic Number</dt><dd>{e.z}</dd></div>
+        <div class="prop-row"><dt>Atomic Weight</dt><dd>{e.weight} u</dd></div>
+        <div class="prop-row"><dt>Category</dt><dd style={`color:${glowColor}`} class="cap">{e.category.replace('-',' ')}</dd></div>
+        <div class="prop-row"><dt>State at STP</dt><dd class="cap">{e.state}</dd></div>
+        <div class="prop-row"><dt>Period</dt><dd>{e.period}</dd></div>
+        <div class="prop-row"><dt>Group</dt><dd>{e.group ?? '—'}</dd></div>
+        <div class="prop-row"><dt>Block</dt><dd class="cap">{e.block}-block</dd></div>
+      </dl>
+    </div>
+
+    <div class="prop-card glass-glow">
+      <h3>Physical Properties</h3>
+      <dl class="prop-list">
+        <div class="prop-row"><dt>Melting Point</dt><dd>{formatTemperature(e.melting)}</dd></div>
+        <div class="prop-row"><dt>Boiling Point</dt><dd>{formatTemperature(e.boiling)}</dd></div>
+        <div class="prop-row"><dt>Density</dt><dd>{formatDensity(e.density)}</dd></div>
+        <div class="prop-row"><dt>Crystal</dt><dd class="cap">{e.crystal ?? '—'}</dd></div>
+        <div class="prop-row"><dt>Atomic Radius</dt><dd>{e.atomicRadius ? `${e.atomicRadius} pm` : '—'}</dd></div>
+        <div class="prop-row"><dt>Ionic Radius</dt><dd>{e.ionicRadius ? `${e.ionicRadius} pm` : '—'}</dd></div>
+        <div class="prop-row"><dt>Electronegativity</dt><dd>{e.electronegativity ?? '—'}</dd></div>
+      </dl>
+    </div>
+
+    <div class="prop-card glass-glow">
+      <h3>Electron Configuration</h3>
+      <dl class="prop-list">
+        <div class="prop-row"><dt>Config</dt><dd class="electron-config">{e.electronConfig}</dd></div>
+        <div class="prop-row"><dt>Shells</dt><dd>{e.shells.join(', ')}</dd></div>
+        <div class="prop-row"><dt>Oxidation States</dt><dd>{e.oxidation.map(o => o > 0 ? `+${o}` : String(o)).join(', ')}</dd></div>
+      </dl>
+    </div>
+
+    <div class="prop-card glass-glow shell-card">
+      <h3>Electron Shells</h3>
+      <ElectronShell shells={e.shells} />
+    </div>
+
+    <div class="prop-card glass-glow">
+      <h3>Discovery</h3>
+      <dl class="prop-list">
+        <div class="prop-row"><dt>Year</dt><dd>{e.year ?? 'Ancient'}</dd></div>
+        <div class="prop-row"><dt>Discoverer</dt><dd>{e.discoverer}</dd></div>
+        <div class="prop-row"><dt>Country</dt><dd>{e.country || '—'}</dd></div>
+      </dl>
+    </div>
+
+    <div class="prop-card glass-glow">
+      <h3>Uses &amp; Applications</h3>
+      <p class="prop-text">{e.uses}</p>
+    </div>
+    <div class="prop-card glass-glow">
+      <h3>Memory Aid</h3>
+      <p class="prop-text mnemonic">{e.mnemonicEn}</p>
+      <p class="prop-text mnemonic-zh">{e.mnemonicZh}</p>
+    </div>
+    <div class="prop-card glass-glow">
+      <h3>Appearance</h3>
+      <p class="prop-text cap">{e.color}</p>
+    </div>
+  </div>
+
+  <div class="detail-actions">
+    <button class="btn-compare glass-glow" id="btn-compare" data-z={String(e.z)}>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M16 3h5v5M8 3H3v5M3 16v5h5M21 16v5h-5M21 3l-7 7M3 3l7 7M3 21l7-7M21 21l-7-7"/>
+      </svg>
+      Add to Compare
+    </button>
+    <a href="/compare" class="btn-compare glass-glow btn-compare-link">View Compare ({e.z} selected)</a>
+  </div>
+</article>
+
+<script>
+  import { addToCompare, removeFromCompare, isInCompare } from '../utils/compare';
+  const btn = document.getElementById('btn-compare') as HTMLButtonElement;
+  const z = parseInt(btn.dataset.z || '0');
+
+  function updateBtn() {
+    if (isInCompare(z)) {
+      btn.innerHTML = '&#x2713; Added';
+      btn.classList.add('is-added');
+    } else {
+      btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M8 3H3v5M3 16v5h5M21 16v5h-5M21 3l-7 7M3 3l7 7M3 21l7-7M21 21l-7-7"/></svg> Add to Compare`;
+      btn.classList.remove('is-added');
+    }
+  }
+
+  updateBtn();
+  window.addEventListener('compare-updated', updateBtn);
+  btn.addEventListener('click', () => isInCompare(z) ? removeFromCompare(z) : addToCompare(z));
+</script>
+
+<style>
+  .detail-root { max-width: 1100px; margin: 0 auto; padding: 1rem 1.5rem 4rem; }
+  .detail-header { text-align: center; padding: 2rem 0 3rem; position: relative; }
+  .detail-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+  .back-btn { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+  .back-btn:hover { color: var(--text-primary); }
+  .detail-nav { display: flex; gap: 0.5rem; align-items: center; }
+  .nav-current { font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-dim); }
+  .nav-arrow { color: var(--text-dim); text-decoration: none; font-family: var(--font-mono); font-size: 0.8rem; padding: 0.25rem 0.6rem; border-radius: var(--radius-sm); border: 1px solid var(--border-glass); transition: all 0.2s; }
+  .nav-arrow:hover { color: var(--text-primary); border-color: var(--border-glow); }
+  .detail-hero { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; }
+  .detail-z { font-family: var(--font-mono); font-size: 1rem; color: var(--text-dim); }
+  .detail-symbol { font-family: var(--font-mono); font-size: 5rem; font-weight: 700; line-height: 1; animation: fadeInUp 0.6s ease-out; }
+  .detail-names { display: flex; gap: 0.75rem; align-items: baseline; }
+  .detail-name-en { font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; color: var(--text-primary); }
+  .detail-name-zh { font-size: 1.1rem; color: var(--text-secondary); }
+
+  .detail-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+  .prop-card { padding: 1.25rem; border-radius: var(--radius-lg); }
+  .prop-card h3 { font-size: 0.85rem; color: var(--text-accent); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+  .prop-list { display: flex; flex-direction: column; gap: 0.5rem; }
+  .prop-row { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; padding-bottom: 0.4rem; border-bottom: 1px solid rgba(255,255,255,0.03); }
+  .prop-row dt { font-size: 0.8rem; color: var(--text-dim); flex-shrink: 0; }
+  .prop-row dd { font-size: 0.85rem; color: var(--text-primary); text-align: right; font-weight: 500; }
+  .prop-row dd.cap { text-transform: capitalize; }
+  .electron-config { font-family: var(--font-mono); font-size: 0.8rem; }
+  .prop-text { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; }
+  .prop-text.mnemonic-zh { font-size: 0.85rem; color: var(--text-dim); margin-top: 0.4rem; }
+  .prop-text.cap { text-transform: capitalize; }
+  .shell-card { display: flex; flex-direction: column; align-items: center; }
+
+  .detail-actions { display: flex; justify-content: center; gap: 1rem; padding: 2rem 0; flex-wrap: wrap; }
+  .btn-compare {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.75rem 1.5rem; border-radius: var(--radius-xl);
+    color: var(--text-primary); font-family: var(--font-body);
+    font-size: 0.9rem; font-weight: 600; cursor: pointer;
+    transition: all 0.25s; text-decoration: none;
+  }
+  .btn-compare:hover { border-color: var(--border-glow); box-shadow: 0 0 20px rgba(124,77,255,0.2); transform: translateY(-1px); }
+  .btn-compare.is-added { border-color: var(--cat-nonmetal); box-shadow: 0 0 16px rgba(124,77,255,0.3); color: var(--cat-nonmetal); }
+  .btn-compare-link { font-weight: 400; font-size: 0.8rem; }
+
+  @media (max-width: 720px) {
+    .detail-symbol { font-size: 3.5rem; }
+    .detail-grid { grid-template-columns: 1fr; }
+  }
+</style>

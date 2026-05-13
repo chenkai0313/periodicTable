@@ -1,0 +1,163 @@
+---
+import { getAllElements, CATEGORIES } from '../utils/elements';
+---
+
+<div class="flashcard-root">
+  <div class="flashcard-controls">
+    <select id="fc-filter" class="fc-select">
+      <option value="all">All Elements</option>
+      {CATEGORIES.map(c => (<option value={c.key}>{c.label}</option>))}
+    </select>
+    <label class="fc-toggle">
+      <input type="checkbox" id="fc-random" /> <span>Random</span>
+    </label>
+    <span class="fc-progress" id="fc-progress">0 / 0</span>
+  </div>
+
+  <div class="fc-card-wrap" id="fc-card-wrap">
+    <div class="fc-card glass-glow" id="fc-card">
+      <div class="fc-card-front">
+        <span class="fc-symbol" id="fc-symbol">—</span>
+        <span class="fc-z" id="fc-z">0</span>
+      </div>
+      <div class="fc-card-back">
+        <span class="fc-name-en" id="fc-name-en">—</span>
+        <span class="fc-name-zh" id="fc-name-zh">—</span>
+        <span class="fc-mnemonic" id="fc-mnemonic">—</span>
+        <span class="fc-uses" id="fc-uses">—</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="fc-actions">
+    <button class="fc-btn" id="fc-prev">&larr; Prev</button>
+    <button class="fc-btn fc-btn-primary" id="fc-flip">Flip</button>
+    <button class="fc-btn" id="fc-next">Next &rarr;</button>
+  </div>
+  <p class="fc-hint">Click card or press Space to flip. Arrow keys to navigate.</p>
+</div>
+
+<script>
+  const card = document.getElementById('fc-card')!;
+  const symbolEl = document.getElementById('fc-symbol')!;
+  const zEl = document.getElementById('fc-z')!;
+  const nameEnEl = document.getElementById('fc-name-en')!;
+  const nameZhEl = document.getElementById('fc-name-zh')!;
+  const mnemonicEl = document.getElementById('fc-mnemonic')!;
+  const usesEl = document.getElementById('fc-uses')!;
+  const progressEl = document.getElementById('fc-progress')!;
+  const filterSelect = document.getElementById('fc-filter') as HTMLSelectElement;
+  const randomCheck = document.getElementById('fc-random') as HTMLInputElement;
+
+  let deck: any[] = [];
+  let currentIdx = 0;
+  let flipped = false;
+
+  async function init() {
+    const res = await fetch('/elements-data.json');
+    const allElements = await res.json();
+    buildDeck(allElements);
+  }
+
+  function buildDeck(allElements: any[]) {
+    const cat = filterSelect.value;
+    deck = cat === 'all' ? [...allElements] : allElements.filter((e: any) => e.category === cat);
+    if (randomCheck.checked) {
+      for (let i = deck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [deck[i], deck[j]] = [deck[j], deck[i]];
+      }
+    }
+    currentIdx = 0;
+    flipped = false;
+    showCard();
+  }
+
+  function showCard() {
+    if (deck.length === 0) {
+      symbolEl.textContent = '—'; zEl.textContent = '0';
+      nameEnEl.textContent = 'No elements'; nameZhEl.textContent = '';
+      mnemonicEl.textContent = ''; usesEl.textContent = '';
+      progressEl.textContent = '0 / 0'; return;
+    }
+    const el = deck[currentIdx];
+    symbolEl.textContent = el.symbol;
+    zEl.textContent = String(el.z);
+    nameEnEl.textContent = el.nameEn;
+    nameZhEl.textContent = el.nameZh;
+    mnemonicEl.textContent = el.mnemonicEn || el.mnemonicZh || '';
+    usesEl.textContent = el.uses || '';
+    progressEl.textContent = `${currentIdx + 1} / ${deck.length}`;
+    card.classList.remove('is-flipped');
+    flipped = false;
+  }
+
+  function flip() { flipped = !flipped; card.classList.toggle('is-flipped', flipped); }
+
+  card.addEventListener('click', flip);
+  document.getElementById('fc-flip')!.addEventListener('click', flip);
+  document.getElementById('fc-prev')!.addEventListener('click', () => {
+    if (deck.length === 0) return;
+    currentIdx = (currentIdx - 1 + deck.length) % deck.length;
+    showCard();
+  });
+  document.getElementById('fc-next')!.addEventListener('click', () => {
+    if (deck.length === 0) return;
+    currentIdx = (currentIdx + 1) % deck.length;
+    showCard();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === ' ') { e.preventDefault(); flip(); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); document.getElementById('fc-prev')!.click(); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); document.getElementById('fc-next')!.click(); }
+  });
+  filterSelect.addEventListener('change', () => init());
+  randomCheck.addEventListener('change', () => init());
+  init();
+</script>
+
+<style>
+  .flashcard-root { max-width: 420px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; }
+  .flashcard-controls { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem; flex-wrap: wrap; justify-content: center; }
+  .fc-select { padding: 0.4rem 0.75rem; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); color: var(--text-primary); font-family: var(--font-body); font-size: 0.8rem; outline: none; cursor: pointer; }
+  .fc-select:focus { border-color: var(--border-glow); }
+  .fc-toggle { display: flex; align-items: center; gap: 0.35rem; font-size: 0.8rem; color: var(--text-secondary); cursor: pointer; }
+  .fc-progress { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-dim); }
+  .fc-card-wrap { perspective: 800px; width: 100%; }
+  .fc-card {
+    width: 100%; aspect-ratio: 3 / 4; border-radius: var(--radius-xl);
+    cursor: pointer; position: relative;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d; user-select: none;
+  }
+  .fc-card.is-flipped { transform: rotateY(180deg); }
+  .fc-card-front, .fc-card-back {
+    position: absolute; inset: 0; backface-visibility: hidden;
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; padding: 1.5rem; border-radius: inherit;
+  }
+  .fc-card-front { background: var(--bg-card); border: 1px solid var(--border-glow); gap: 0.5rem; }
+  .fc-card-back { transform: rotateY(180deg); background: var(--bg-card); border: 1px solid var(--border-glow); gap: 0.5rem; text-align: center; }
+  .fc-symbol {
+    font-family: var(--font-mono); font-size: 4rem; font-weight: 700;
+    background: linear-gradient(135deg, #c4b5fd, #7c4dff);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .fc-z { font-family: var(--font-mono); font-size: 1rem; color: var(--text-dim); }
+  .fc-name-en { font-family: var(--font-display); font-size: 1.4rem; font-weight: 600; color: var(--text-primary); }
+  .fc-name-zh { font-size: 1.2rem; color: var(--text-secondary); }
+  .fc-mnemonic { font-size: 0.85rem; color: var(--text-accent); margin-top: 0.5rem; line-height: 1.5; }
+  .fc-uses { font-size: 0.75rem; color: var(--text-dim); line-height: 1.4; }
+  .fc-actions { display: flex; gap: 0.5rem; margin-top: 1.5rem; }
+  .fc-btn {
+    padding: 0.6rem 1rem; background: var(--bg-card);
+    border: 1px solid var(--border-glass); border-radius: var(--radius-md);
+    color: var(--text-primary); font-family: var(--font-display);
+    font-size: 0.85rem; cursor: pointer; transition: all 0.2s;
+  }
+  .fc-btn:hover { border-color: var(--border-glow); background: var(--bg-card-hover); }
+  .fc-btn-primary { background: linear-gradient(135deg, rgba(124,77,255,0.3), rgba(64,196,255,0.2)); border-color: var(--border-glow); font-weight: 600; padding: 0.6rem 1.8rem; }
+  .fc-btn-primary:hover { box-shadow: 0 0 20px rgba(124,77,255,0.3); }
+  .fc-hint { text-align: center; color: var(--text-dim); font-size: 0.7rem; margin-top: 1rem; }
+</style>

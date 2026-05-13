@@ -1,0 +1,27 @@
+---
+import Layout from '../components/Layout.astro';
+import PeriodicTable from '../components/PeriodicTable.astro';
+import SearchBar from '../components/SearchBar.astro';
+---
+
+<Layout
+  title="Interactive Periodic Table of Elements"
+  description="Explore all 118 elements with properties, electron configurations, and learning tools. Bilingual Chinese-English support."
+>
+  <div class="home-hero">
+    <h1 class="hero-title">The <span class="text-gradient">Elements</span></h1>
+    <p class="hero-sub">Interactive periodic table &mdash; explore, learn, compare</p>
+  </div>
+
+  <div class="table-container">
+    <SearchBar />
+    <PeriodicTable />
+  </div>
+</Layout>
+
+<style>
+  .home-hero { text-align: center; padding: 2.5rem 1rem 1.5rem; }
+  .hero-title { font-size: clamp(2rem, 5vw, 3.5rem); margin-bottom: 0.5rem; }
+  .hero-sub { color: var(--text-secondary); font-size: 1.05rem; font-weight: 300; letter-spacing: 0.02em; }
+  .table-container { max-width: 1440px; margin: 0 auto; padding: 0 1.5rem 4rem; }
+</style>

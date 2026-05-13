@@ -1,0 +1,61 @@
+---
+interface Props { shells: number[]; }
+const { shells } = Astro.props;
+---
+
+<div class="shell-diagram">
+  {shells.map((count, i) => (
+    <div class="shell-ring" style={[
+      `width: ${(i + 1) * 44 + 20}px;`,
+      `height: ${(i + 1) * 44 + 20}px;`,
+      `animation-delay: ${i * 0.25}s;`,
+    ].join(' ')}>
+      <span class="shell-label">{count}e⁻</span>
+      {Array.from({ length: count }).map((_, j) => (
+        <span class="shell-electron" style={[
+          `--angle: ${(360 / count) * j}deg;`,
+          `--radius: ${((i + 1) * 44 + 20) / 2}px;`,
+          `animation-delay: ${i * 0.25 + j * 0.04}s;`,
+        ].join(' ')} />
+      ))}
+    </div>
+  ))}
+  <div class="shell-nucleus"></div>
+</div>
+
+<style>
+  .shell-diagram {
+    display: flex; align-items: center; justify-content: center;
+    position: relative; width: 100%; max-width: 380px; aspect-ratio: 1;
+    margin: 1rem auto;
+  }
+  .shell-ring {
+    position: absolute; border-radius: 50%;
+    border: 1px solid rgba(124, 77, 255, 0.25);
+    animation: shellFadeIn 0.6s ease-out both;
+  }
+  .shell-label {
+    position: absolute; right: -22px; top: 50%; transform: translateY(-50%);
+    font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-dim);
+  }
+  .shell-electron {
+    position: absolute; width: 5px; height: 5px; border-radius: 50%;
+    background: var(--cat-nonmetal);
+    box-shadow: 0 0 8px var(--cat-nonmetal);
+    animation: electronOrbit 4s linear infinite;
+  }
+  .shell-nucleus {
+    position: absolute; width: 18px; height: 18px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #ff6b6b, #c62828);
+    box-shadow: 0 0 24px rgba(255, 82, 82, 0.5), 0 0 48px rgba(255, 82, 82, 0.2);
+    z-index: 2;
+  }
+  @keyframes shellFadeIn {
+    from { opacity: 0; transform: scale(0.8); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  @keyframes electronOrbit {
+    from { transform: rotate(var(--angle)) translateX(var(--radius)) rotate(0deg); }
+    to   { transform: rotate(calc(var(--angle) + 360deg)) translateX(var(--radius)) rotate(-360deg); }
+  }
+</style>

@@ -1,0 +1,21 @@
+---
+import Layout from '../../components/Layout.astro';
+import ElementDetail from '../../components/ElementDetail.astro';
+import { getAllElements, getElementByZ } from '../../utils/elements';
+
+export function getStaticPaths() {
+  return getAllElements().map(e => ({
+    params: { atomicNumber: String(e.z) },
+    props: { element: e },
+  }));
+}
+
+const { element } = Astro.props;
+---
+
+<Layout
+  title={`${element.symbol} - ${element.nameEn} (${element.nameZh}) | PeriodicTable`}
+  description={`${element.nameEn} (${element.nameZh}) — atomic number ${element.z}, ${element.category}. Electron config: ${element.electronConfig}. Uses: ${element.uses}`}
+>
+  <ElementDetail element={element} />
+</Layout>
