@@ -3,7 +3,7 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
-  site: 'https://periodictable.app',
+  site: 'https://ptable.top',
   integrations: [sitemap({
     i18n: {
       defaultLocale: 'en',

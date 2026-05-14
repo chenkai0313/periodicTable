@@ -1,5 +1,4 @@
 User-agent: *
 Allow: /
-Disallow: /api/
 
-Sitemap: https://periodictable.app/sitemap-index.xml
+Sitemap: https://ptable.top/sitemap-index.xml
