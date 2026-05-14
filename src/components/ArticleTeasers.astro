@@ -1,0 +1,93 @@
+---
+interface Props { locale?: string; }
+const { locale = 'en' } = Astro.props;
+
+const articles = [
+  {
+    slug: 'lithium-ev-batteries',
+    titleEn: 'Why Lithium Powers EV Batteries',
+    titleZh: '为什么锂成为了电动汽车电池的关键元素',
+    descEn: 'The chemistry and global supply chain behind the lightest metal driving the EV revolution.',
+    descZh: '最轻的金属如何驱动电动汽车革命：化学原理与全球供应链。',
+  },
+  {
+    slug: 'silicon-digital-world',
+    titleEn: 'How Silicon Powers the Digital World',
+    titleZh: '硅如何驱动现代数字世界',
+    descEn: 'From beach sand to billions of transistors — how element 14 built the Information Age.',
+    descZh: '从海滩沙粒到数十亿晶体管——14号元素如何构建信息时代。',
+  },
+  {
+    slug: 'helium-value',
+    titleEn: 'Why Helium Is More Valuable Than You Think',
+    titleZh: '为什么氦比想象的更有价值',
+    descEn: 'Beyond party balloons — helium\'s irreplaceable role in MRI, semiconductors, and space.',
+    descZh: '超越派对气球——氦在MRI、半导体和航天中不可替代的角色。',
+  },
+];
+---
+
+<section class="articles-teaser">
+  <div class="articles-teaser-header">
+    <h2 class="articles-teaser-title">
+      <span class="lang-en">Science <span class="text-gradient">Articles</span></span>
+      <span class="lang-zh">元素<span class="text-gradient">科普文章</span></span>
+    </h2>
+    <a href={`/${locale}/articles`} class="articles-teaser-more">
+      <span class="lang-en">View all &rarr;</span>
+      <span class="lang-zh">查看更多 &rarr;</span>
+    </a>
+  </div>
+  <div class="articles-teaser-grid">
+    {articles.map(a => (
+      <a href={`/${locale}/articles/${a.slug}`} class="at-card glass-glow">
+        <h3 class="at-card-title">
+          <span class="lang-en">{a.titleEn}</span>
+          <span class="lang-zh">{a.titleZh}</span>
+        </h3>
+        <p class="at-card-desc">
+          <span class="lang-en">{a.descEn}</span>
+          <span class="lang-zh">{a.descZh}</span>
+        </p>
+      </a>
+    ))}
+  </div>
+</section>
+
+<style>
+  .articles-teaser {
+    max-width: 1200px; margin: 0 auto; padding: 3rem 1.5rem;
+  }
+  .articles-teaser-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1.25rem;
+  }
+  .articles-teaser-title {
+    font-size: 1.3rem; font-weight: 700; color: var(--text-primary);
+  }
+  .articles-teaser-more {
+    color: var(--accent-blue); text-decoration: none; font-size: 0.85rem; font-weight: 500;
+    transition: opacity 0.2s; white-space: nowrap;
+  }
+  .articles-teaser-more:hover { opacity: 0.75; }
+  .articles-teaser-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0.75rem;
+  }
+  .at-card {
+    display: block; padding: 1.25rem 1.5rem; border-radius: var(--radius-lg);
+    text-decoration: none; transition: all 0.3s;
+    border: 1px solid var(--border-glass);
+  }
+  .at-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent-blue);
+    box-shadow: 0 6px 24px rgba(74, 158, 255, 0.08);
+  }
+  .at-card-title {
+    font-size: 1rem; font-weight: 600; color: var(--text-primary);
+    margin-bottom: 0.4rem; line-height: 1.4;
+  }
+  .at-card-desc {
+    font-size: 0.82rem; color: var(--text-secondary); line-height: 1.55;
+  }
+</style>

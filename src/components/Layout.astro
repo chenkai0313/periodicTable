@@ -2,6 +2,7 @@
 import Navbar from './Navbar.astro';
 import ParticleBg from './ParticleBg.astro';
 import CompareDrawer from './CompareDrawer.astro';
+import ArticleTeasers from './ArticleTeasers.astro';
 import '../styles/global.css';
 
 interface Props {
@@ -164,6 +165,7 @@ const imageUrl = ogImage.startsWith('http') ? ogImage : SITE_URL + ogImage;
     <slot />
   </main>
   <CompareDrawer locale={locale} />
+  <ArticleTeasers locale={locale} />
   <footer class="site-footer">
     <div class="footer-inner">
       <div class="footer-links">
