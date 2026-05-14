@@ -165,7 +165,7 @@ const imageUrl = ogImage.startsWith('http') ? ogImage : SITE_URL + ogImage;
     <slot />
   </main>
   <CompareDrawer locale={locale} />
-  <ArticleTeasers locale={locale} />
+  {!cleanPath.includes('/articles') && <ArticleTeasers locale={locale} />}
   <footer class="site-footer">
     <div class="footer-inner">
       <div class="footer-links">
