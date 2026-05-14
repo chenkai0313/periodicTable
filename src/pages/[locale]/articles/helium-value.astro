@@ -6,7 +6,7 @@ export function getStaticPaths() {
 }
 
 const locale = Astro.params.locale || 'en';
-const SITE_URL = 'https://periodictable.app';
+const SITE_URL = 'https://ptable.top';
 const slug = '/articles/helium-value';
 const url = `${SITE_URL}/${locale}${slug}`;
 
@@ -119,8 +119,12 @@ const faqSchema = {
   <div class="article-root">
     <article class="article-body glass-glow">
 
+      <h1>
+        <span class="lang-en">Why Helium Is More Valuable Than Most People Think</span>
+        <span class="lang-zh">为什么氦比大多数人想象的更有价值：从派对气球到MRI扫描仪</span>
+      </h1>
+
       <div class="lang-en">
-        <h1>Why Helium Is More Valuable Than Most People Think</h1>
         <p class="article-meta">Published: May 14, 2026 &middot; Author: PeriodicTable Editorial Team &middot; Reading time: ~12 minutes</p>
 
         <p>If you ask most people what helium is for, they will say balloons. That is a bit like saying steel is for paperclips. Helium is, in truth, one of the most strategically important materials in modern civilization — and unlike almost everything else we mine or extract, it is genuinely irreplaceable for many of its uses. When a helium atom is released into the atmosphere, it rises, diffuses, and eventually escapes Earth's gravity entirely. There is no recycling loop. No substitute. Every helium atom we release today is an atom our grandchildren will never have.</p>
@@ -193,7 +197,6 @@ const faqSchema = {
       </div>
 
       <div class="lang-zh">
-        <h1>为什么氦比大多数人想象的更有价值：从派对气球到MRI扫描仪</h1>
         <p class="article-meta">发布日期：2026年5月14日 &middot; 作者：PeriodicTable 编辑团队 &middot; 阅读时间：约12分钟</p>
 
         <p>如果问大多数人氦气是干什么用的，他们会说气球。这就好比说钢铁是用来做回形针的。事实上，氦是现代文明中最具战略重要性的材料之一——而且与几乎所有我们开采或提取的物质不同，它在许多用途上真正不可替代。当一个氦原子被释放到大气中时，它会上升、扩散，最终完全摆脱地球引力。没有回收循环，没有替代品。我们今天释放的每一个氦原子，都是我们的子孙后代永远无法再拥有的原子。</p>

@@ -17,4 +17,11 @@ export default defineConfig({
   build: {
     format: 'directory',
   },
+  compressHTML: true,
+  prefetch: {
+    defaultStrategy: 'hover',
+  },
+  server: {
+    port: 3002,
+  },
 });

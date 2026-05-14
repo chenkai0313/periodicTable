@@ -6,7 +6,7 @@ export function getStaticPaths() {
 }
 
 const locale = Astro.params.locale || 'en';
-const SITE_URL = 'https://periodictable.app';
+const SITE_URL = 'https://ptable.top';
 const slug = '/articles/silicon-digital-world';
 const url = `${SITE_URL}/${locale}${slug}`;
 
@@ -119,8 +119,12 @@ const faqSchema = {
   <div class="article-root">
     <article class="article-body glass-glow">
 
+      <h1>
+        <span class="lang-en">How Silicon Powers the Modern Digital World</span>
+        <span class="lang-zh">硅如何驱动现代数字世界：从沙子到芯片的完整故事</span>
+      </h1>
+
       <div class="lang-en">
-        <h1>How Silicon Powers the Modern Digital World</h1>
         <p class="article-meta">Published: May 14, 2026 &middot; Author: PeriodicTable Editorial Team &middot; Reading time: ~11 minutes</p>
 
         <p>Silicon is everywhere and nowhere. It is the physical substrate of every computer, phone, and server that makes modern life possible — yet you have almost certainly never seen it in its pure elemental form. You are reading this text thanks to billions of silicon transistors switching on and off at gigahertz frequencies. The device in your hand contains more of them than there are stars in the Milky Way. This is the story of element 14, the metalloid that built the Information Age.</p>
@@ -189,7 +193,6 @@ const faqSchema = {
       </div>
 
       <div class="lang-zh">
-        <h1>硅如何驱动现代数字世界：从沙子到芯片的完整故事</h1>
         <p class="article-meta">发布日期：2026年5月14日 &middot; 作者：PeriodicTable 编辑团队 &middot; 阅读时间：约11分钟</p>
 
         <p>硅无处不在，却又无处可见。它是支撑每一台电脑、手机和服务器的物理基础，使得现代生活成为可能——然而你几乎肯定从未见过它纯净的元素形态。你正在阅读的这段文字，依赖于数十亿个硅晶体管以千兆赫的频率不断开关。你手中的设备包含的晶体管数量比银河系中的恒星还多。这就是第14号元素的故事——这个准金属构建了信息时代。</p>

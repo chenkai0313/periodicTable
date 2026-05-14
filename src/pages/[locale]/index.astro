@@ -15,16 +15,18 @@ const locale = Astro.params.locale || 'en';
 <Layout
   title={locale === 'zh'
     ? '化学元素周期表 — 118种元素完整数据 | 中英双语互动学习'
-    : 'Periodic Table of Elements — Interactive Chemistry Reference with 118 Elements'}
+    : 'Interactive Periodic Table — Explore All 118 Elements'}
   description={locale === 'zh'
-    ? '化学元素周期表，提供118种化学元素的完整数据：电子排布、原子量、熔点、沸点、密度、发现历史、用途。支持中英双语切换、元素对比、方程式配平、记忆卡片等化学学习工具。'
-    : 'Interactive periodic table of elements with 118 chemical elements. Complete data: electron configuration, atomic weight, melting point, boiling point, density, discovery history, uses. Bilingual Chinese-English chemistry learning tools including element comparison, equation balancer, and flashcards.'}
+    ? '探索118种化学元素的互动周期表。查询原子量、电子排布、熔点、沸点等完整数据。免费中英双语化学参考工具，适合学生、教师和研究人员使用。'
+    : 'Explore all 118 elements with our interactive periodic table. Compare atomic weights, electron configurations, melting points, and more. A free chemistry reference for students, teachers, and researchers — available in English and Chinese.'}
   pathname={locale === 'en' ? '/en/' : '/zh/'}
   currentLocale={locale}
 >
   <div class="home-hero">
-    <h1 class="hero-title lang-en">The <span class="text-gradient">Elements</span></h1>
-    <h1 class="hero-title lang-zh"><span class="text-gradient">元素</span>周期表</h1>
+    <h1 class="hero-title">
+      <span class="lang-en">Interactive Periodic Table of the <span class="text-gradient">Elements</span></span>
+      <span class="lang-zh">交互式<span class="text-gradient">元素</span>周期表</span>
+    </h1>
     <p class="hero-sub lang-en">Interactive periodic table &mdash; explore, learn, compare</p>
     <p class="hero-sub lang-zh">交互式元素周期表 &mdash; 探索、学习、对比</p>
   </div>

@@ -6,7 +6,7 @@ export function getStaticPaths() {
 }
 
 const locale = Astro.params.locale || 'en';
-const SITE_URL = 'https://periodictable.app';
+const SITE_URL = 'https://ptable.top';
 const slug = '/articles/lithium-ev-batteries';
 const url = `${SITE_URL}/${locale}${slug}`;
 
@@ -119,10 +119,13 @@ const faqSchema = {
   <div class="article-root">
     <article class="article-body glass-glow">
 
+      <h1>
+        <span class="lang-en">Why Lithium Became Essential for Electric Vehicle Batteries</span>
+        <span class="lang-zh">为什么锂成为了电动汽车电池不可或缺的关键元素</span>
+      </h1>
+
       <!-- EN Content -->
       <div class="lang-en">
-        <h1>Why Lithium Became Essential for Electric Vehicle Batteries</h1>
-
         <p class="article-meta">Published: May 14, 2026 &middot; Author: PeriodicTable Editorial Team &middot; Reading time: ~12 minutes</p>
 
         <p>Walk into any conversation about electric vehicles, and within minutes you will hear the word "lithium." It has become shorthand for the entire energy transition — lithium this, lithium that. But why <em>this</em> element? The periodic table contains 118 elements. Why did the third one, a soft silvery metal that floats on water, become the cornerstone of a trillion-dollar industry reshaping global transportation?</p>
@@ -204,8 +207,6 @@ const faqSchema = {
 
       <!-- ZH Content -->
       <div class="lang-zh">
-        <h1>为什么锂成为了电动汽车电池不可或缺的关键元素</h1>
-
         <p class="article-meta">发布日期：2026年5月14日 &middot; 作者：PeriodicTable 编辑团队 &middot; 阅读时间：约12分钟</p>
 
         <p>随便走进一场关于电动汽车的谈话，几分钟之内你就会听到"锂"这个词。它已经成为了整个能源转型的代名词——锂电池、锂矿、锂供应链。但为什么是<em>这个</em>元素？周期表中有118种元素，为什么偏偏是第三号元素——一种柔软、银白色、能浮在水面上的金属——成为了一个重塑全球交通的万亿级产业的基石？</p>
