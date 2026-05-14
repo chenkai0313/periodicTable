@@ -12,33 +12,56 @@ body {
 
 /* === CSS Variables === */
 :root {
-  --bg-root: #060612;
-  --bg-surface: #0c0c24;
-  --bg-card: rgba(14, 14, 40, 0.65);
-  --bg-card-hover: rgba(18, 18, 55, 0.8);
-  --text-primary: #e8e6f0;
-  --text-secondary: #9898c0;
-  --text-dim: #5a5a80;
-  --text-accent: #c4b5fd;
-  --border-glass: rgba(255, 255, 255, 0.06);
-  --border-glow: rgba(120, 100, 255, 0.2);
-  --glass-blur: blur(12px);
-  --glass-bg: rgba(10, 10, 40, 0.5);
-  --cat-alkali: #ff5252;
-  --cat-alkaline: #ff9100;
-  --cat-transition: #40c4ff;
-  --cat-post-transition: #69f0ae;
-  --cat-metalloid: #ffd740;
-  --cat-nonmetal: #7c4dff;
-  --cat-halogen: #ff4081;
-  --cat-noble: #18ffff;
-  --cat-lanthanide: #b2ff59;
-  --cat-actinide: #ff6e40;
-  --glow-weak: 0 0 8px;
-  --glow-strong: 0 0 20px;
+  /* Backgrounds — clean white hierarchy */
+  --bg-root: #ffffff;
+  --bg-surface: #f8f7f4;
+  --bg-card: rgba(255, 255, 255, 0.92);
+  --bg-card-hover: #ffffff;
+
+  /* Text — warm grays */
+  --text-primary: #1a1a1a;
+  --text-secondary: #707070;
+  --text-dim: #b0b0b0;
+
+  /* Spectrum accent colors — prism palette */
+  --accent-red: #ff5e5b;
+  --accent-orange: #ff8e3c;
+  --accent-yellow: #f0b429;
+  --accent-green: #4ecb71;
+  --accent-teal: #2ec4b6;
+  --accent-blue: #4a9eff;
+  --accent-purple: #7c6ff7;
+  --accent-pink: #e91e8c;
+
+  /* Borders — whisper-light */
+  --border-glass: rgba(0, 0, 0, 0.06);
+  --border-glow: rgba(0, 0, 0, 0.10);
+  --glass-blur: blur(6px);
+  --glass-bg: rgba(255, 255, 255, 0.75);
+
+  /* Element category colors — vibrant against white */
+  --cat-alkali: #ff5e5b;
+  --cat-alkaline: #ff8e3c;
+  --cat-transition: #4a9eff;
+  --cat-post-transition: #4ecb71;
+  --cat-metalloid: #f0b429;
+  --cat-nonmetal: #7c6ff7;
+  --cat-halogen: #e91e8c;
+  --cat-noble: #2ec4b6;
+  --cat-lanthanide: #7cb342;
+  --cat-actinide: #ff6d3a;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.06);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.08);
+
+  /* Typography */
   --font-display: 'Space Grotesk', 'DM Sans', sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
   --font-body: 'Outfit', 'DM Sans', system-ui, sans-serif;
+
+  /* Radii */
   --radius-sm: 6px;
   --radius-md: 12px;
   --radius-lg: 20px;
@@ -62,12 +85,16 @@ a { color: inherit; }
   to   { opacity: 1; }
 }
 @keyframes pulseGlow {
-  0%, 100% { box-shadow: var(--glow-weak) currentColor; }
-  50%      { box-shadow: var(--glow-strong) currentColor; }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0,0,0,0); }
+  50%      { box-shadow: 0 0 0 3px rgba(0,0,0,0.06); }
 }
 @keyframes float {
   0%, 100% { transform: translateY(0); }
   50%      { transform: translateY(-6px); }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
 /* === Utility Classes === */
@@ -81,10 +108,10 @@ a { color: inherit; }
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--border-glow);
+  border: 1px solid var(--border-glass);
 }
 .text-gradient {
-  background: linear-gradient(135deg, #c4b5fd, #7c4dff, #40c4ff);
+  background: linear-gradient(135deg, #ff5e5b, #ff8e3c, #4ecb71, #4a9eff, #7c6ff7);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -92,7 +119,7 @@ a { color: inherit; }
 
 /* === Scrollbar === */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: var(--bg-root); }
-::-webkit-scrollbar-thumb { background: rgba(120, 100, 255, 0.3); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(120, 100, 255, 0.5); }
-::selection { background: rgba(124, 77, 255, 0.4); color: #fff; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.12); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.22); }
+::selection { background: rgba(0, 0, 0, 0.06); color: var(--text-primary); }

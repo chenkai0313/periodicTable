@@ -1,102 +1,243 @@
 ---
 import ElectronShell from './ElectronShell.astro';
-import { getCategoryColor, formatTemperature, formatDensity } from '../utils/elements';
+import {
+  getCategoryColor, getCategoryLabel, getCategoryLabelZh,
+  formatTemperature, formatDensity,
+  STATE_LABELS, BLOCK_LABELS, CRYSTAL_LABELS, COUNTRY_LABELS, USES_ZH, CATEGORIES,
+  getAllElements,
+} from '../utils/elements';
 import type { ElementData } from '../utils/elements';
 
-interface Props { element: ElementData; }
-const { element: e } = Astro.props;
+interface Props { element: ElementData; locale?: string; }
+const { element: e, locale = 'en' } = Astro.props;
 const glowColor = getCategoryColor(e.category);
+
+const catEn = getCategoryLabel(e.category);
+const catZh = getCategoryLabelZh(e.category);
+const stateEn = e.state.charAt(0).toUpperCase() + e.state.slice(1);
+const stateZh = STATE_LABELS[e.state] || e.state;
+const blockEn = e.block + '-block';
+const blockZh = BLOCK_LABELS[e.block] || (e.block + '区');
+const crystalInfo = e.crystal ? (CRYSTAL_LABELS[e.crystal] || { en: e.crystal, zh: e.crystal }) : null;
+const countryZh = e.country ? (COUNTRY_LABELS[e.country] || e.country) : '';
+const yearText = e.year ? String(e.year) : 'Ancient';
+const yearTextZh = e.year ? String(e.year) + ' 年' : '古代';
+const discovererText = e.discoverer || '—';
+
+// Related elements: same group and same period
+const allElements = getAllElements();
+const sameGroup = allElements.filter(el => el.group === e.group && el.z !== e.z && e.group != null).slice(0, 4);
+const samePeriod = allElements.filter(el => el.period === e.period && el.z !== e.z).slice(0, 4);
+
+// Safety info based on category and properties
+const safetyInfo = getSafetyInfo(e);
+
+function getSafetyInfo(el: ElementData) {
+  const warnings: string[] = [];
+  const zhWarnings: string[] = [];
+
+  if (el.category === 'actinide' || el.z >= 84) {
+    warnings.push('Radioactive — handle only in licensed facilities with proper shielding.');
+    zhWarnings.push('放射性元素——仅在持证设施中并使用适当防护的情况下处理。');
+  }
+  if (el.category === 'halogen') {
+    warnings.push('Highly reactive halogen gas — toxic if inhaled, causes severe burns on contact.');
+    zhWarnings.push('高活性卤素——吸入有毒，接触会造成严重灼伤。');
+  }
+  if (el.category === 'alkali') {
+    warnings.push('Extremely reactive with water — store under mineral oil. Can cause fire or explosion on water contact.');
+    zhWarnings.push('与水极度反应——储存于矿物油中。遇水可引发火灾或爆炸。');
+  }
+  if (['mercury', 'lead', 'arsenic', 'cadmium', 'thallium', 'beryllium'].includes(el.nameEn.toLowerCase())) {
+    warnings.push('Toxic — avoid inhalation of dust or fumes. Chronic exposure may cause serious health effects.');
+    zhWarnings.push('有毒——避免吸入粉尘或烟雾。长期接触可能导致严重健康影响。');
+  }
+  if (el.category === 'noble') {
+    warnings.push('Generally inert and non-toxic. Asphyxiation risk only in confined spaces at high concentrations.');
+    zhWarnings.push('通常为惰性无毒气体。仅在密闭空间高浓度时有窒息风险。');
+  }
+
+  if (warnings.length === 0) {
+    warnings.push('Handle with standard laboratory precautions. Refer to the Safety Data Sheet (SDS) for detailed handling instructions.');
+    zhWarnings.push('按照标准实验室预防措施处理。详细操作说明请参阅安全数据表（SDS）。');
+  }
+
+  return { en: warnings, zh: zhWarnings };
+}
 ---
 
 <article class="detail-root">
   <div class="detail-header" style={`--accent: ${glowColor};`}>
     <div class="detail-top-row">
-      <a href="/" class="back-btn">
+      <a href={`/${locale}`} class="back-btn">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="m15 18-6-6 6-6"/>
         </svg>
-        Back to Table
+        <span class="lang-en">Back to Table</span>
+        <span class="lang-zh">返回周期表</span>
       </a>
       <div class="detail-nav">
-        {e.z > 1 && <a href={`/element/${e.z - 1}`} class="nav-arrow" title="Previous element">&larr; #{e.z - 1}</a>}
+        {e.z > 1 && <a href={`/${locale}/element/${e.z - 1}`} class="nav-arrow" title="Previous element">&larr; #{e.z - 1}</a>}
         <span class="nav-current">#{e.z}</span>
-        {e.z < 118 && <a href={`/element/${e.z + 1}`} class="nav-arrow" title="Next element">#{e.z + 1} &rarr;</a>}
+        {e.z < 118 && <a href={`/${locale}/element/${e.z + 1}`} class="nav-arrow" title="Next element">#{e.z + 1} &rarr;</a>}
       </div>
     </div>
     <div class="detail-hero">
       <span class="detail-z">{e.z}</span>
-      <h1 class="detail-symbol" style={`color: ${glowColor}; text-shadow: 0 0 30px color-mix(in srgb, ${glowColor} 50%, transparent);`}>
+      <h1 class="detail-symbol" style={`color: ${glowColor};`}>
         {e.symbol}
       </h1>
       <div class="detail-names">
-        <span class="detail-name-en">{e.nameEn}</span>
-        <span class="detail-name-zh">{e.nameZh}</span>
+        <span class="detail-name-en lang-en">{e.nameEn}</span>
+        <span class="detail-name-zh lang-zh">{e.nameZh}</span>
       </div>
     </div>
   </div>
 
+  <!-- Introduction -->
+  <div class="detail-intro glass-glow">
+    <p class="lang-en">{e.nameEn} is a <strong style={`color:${glowColor}`}>{catEn}</strong> element with the symbol <strong>{e.symbol}</strong> and atomic number {e.z}. Located in period {e.period}{e.group ? `, group ${e.group}` : ''} ({e.block}-block), it has an atomic weight of <strong>{e.weight} u</strong> and is classified as a <strong>{stateEn.toLowerCase()}</strong> at standard temperature and pressure. {e.year ? `First identified in ${yearText}` : `Known since ${yearText.toLowerCase()}`}{e.discoverer ? ` by ${e.discoverer}` : ''}{e.country ? ` in ${e.country}` : ''}. {e.nameEn} has an electron configuration of <strong>{e.electronConfig}</strong> with {e.shells.length} electron shells containing {e.shells.join(', ')} electrons respectively. {e.uses ? `It is commonly used in: ${e.uses.toLowerCase()}.` : ''}</p>
+    <p class="lang-zh">{e.nameZh}是一种<strong style={`color:${glowColor}`}>{catZh}</strong>元素，符号为<strong>{e.symbol}</strong>，原子序数为{e.z}。位于第{e.period}周期{e.group ? `，第${e.group}族` : ''}（{e.block}区），原子量为<strong>{e.weight} u</strong>，在标准温度和压力下为<strong>{stateZh}</strong>。{e.year ? `于${yearTextZh}首次被确认` : `自古以来即为人类所知`}{e.discoverer ? `，由${e.discoverer}发现` : ''}{e.countryZh ? `（${countryZh}）` : ''}。{e.nameZh}的电子排布为<strong>{e.electronConfig}</strong>，具有{e.shells.length}个电子层，分别含有{e.shells.join('、')}个电子。{e.uses ? `常见用途包括：${USES_ZH[e.uses] || e.uses}。` : ''}</p>
+  </div>
+
   <div class="detail-grid">
     <div class="prop-card glass-glow">
-      <h3>Basic Properties</h3>
+      <h3><span class="lang-en">Basic Properties</span><span class="lang-zh">基本属性</span></h3>
       <dl class="prop-list">
-        <div class="prop-row"><dt>Atomic Number</dt><dd>{e.z}</dd></div>
-        <div class="prop-row"><dt>Atomic Weight</dt><dd>{e.weight} u</dd></div>
-        <div class="prop-row"><dt>Category</dt><dd style={`color:${glowColor}`} class="cap">{e.category.replace('-',' ')}</dd></div>
-        <div class="prop-row"><dt>State at STP</dt><dd class="cap">{e.state}</dd></div>
-        <div class="prop-row"><dt>Period</dt><dd>{e.period}</dd></div>
-        <div class="prop-row"><dt>Group</dt><dd>{e.group ?? '—'}</dd></div>
-        <div class="prop-row"><dt>Block</dt><dd class="cap">{e.block}-block</dd></div>
+        <div class="prop-row"><dt><span class="lang-en">Atomic Number</span><span class="lang-zh">原子序数</span></dt><dd>{e.z}</dd></div>
+        <div class="prop-row"><dt><span class="lang-en">Atomic Weight</span><span class="lang-zh">原子量</span></dt><dd>{e.weight} u</dd></div>
+        <div class="prop-row"><dt><span class="lang-en">Category</span><span class="lang-zh">分类</span> <button class="cat-info-btn" id="cat-info-btn" aria-label="Category info">?</button></dt><dd style={`color:${glowColor}`}><span class="lang-en cap">{catEn}</span><span class="lang-zh">{catZh}</span></dd></div>
+        <div class="prop-row"><dt><span class="lang-en">State at STP</span><span class="lang-zh">标准状态</span></dt><dd><span class="lang-en cap">{stateEn}</span><span class="lang-zh">{stateZh}</span></dd></div>
+        <div class="prop-row"><dt><span class="lang-en">Period</span><span class="lang-zh">周期</span></dt><dd>{e.period}</dd></div>
+        <div class="prop-row"><dt><span class="lang-en">Group</span><span class="lang-zh">族</span></dt><dd>{e.group ?? '—'}</dd></div>
+        <div class="prop-row"><dt><span class="lang-en">Block</span><span class="lang-zh">区</span></dt><dd><span class="lang-en cap">{blockEn}</span><span class="lang-zh">{blockZh}</span></dd></div>
       </dl>
     </div>
 
     <div class="prop-card glass-glow">
-      <h3>Physical Properties</h3>
+      <h3><span class="lang-en">Physical Properties</span><span class="lang-zh">物理性质</span></h3>
       <dl class="prop-list">
-        <div class="prop-row"><dt>Melting Point</dt><dd>{formatTemperature(e.melting)}</dd></div>
-        <div class="prop-row"><dt>Boiling Point</dt><dd>{formatTemperature(e.boiling)}</dd></div>
-        <div class="prop-row"><dt>Density</dt><dd>{formatDensity(e.density)}</dd></div>
-        <div class="prop-row"><dt>Crystal</dt><dd class="cap">{e.crystal ?? '—'}</dd></div>
-        <div class="prop-row"><dt>Atomic Radius</dt><dd>{e.atomicRadius ? `${e.atomicRadius} pm` : '—'}</dd></div>
-        <div class="prop-row"><dt>Ionic Radius</dt><dd>{e.ionicRadius ? `${e.ionicRadius} pm` : '—'}</dd></div>
-        <div class="prop-row"><dt>Electronegativity</dt><dd>{e.electronegativity ?? '—'}</dd></div>
+        <div class="prop-row"><dt><span class="lang-en">Melting Point</span><span class="lang-zh">熔点</span></dt><dd>{formatTemperature(e.melting)}</dd></div>
+        <div class="prop-row"><dt><span class="lang-en">Boiling Point</span><span class="lang-zh">沸点</span></dt><dd>{formatTemperature(e.boiling)}</dd></div>
+        <div class="prop-row"><dt><span class="lang-en">Density</span><span class="lang-zh">密度</span></dt><dd>{formatDensity(e.density)}</dd></div>
+        <div class="prop-row"><dt><span class="lang-en">Crystal Structure</span><span class="lang-zh">晶体结构</span></dt><dd>
+          {crystalInfo ? (
+            <><span class="lang-en cap">{crystalInfo.en}</span><span class="lang-zh">{crystalInfo.zh}</span></>
+          ) : '—'}
+        </dd></div>
+        <div class="prop-row"><dt><span class="lang-en">Atomic Radius</span><span class="lang-zh">原子半径</span></dt><dd>{e.atomicRadius ? `${e.atomicRadius} pm` : '—'}</dd></div>
+        <div class="prop-row"><dt><span class="lang-en">Ionic Radius</span><span class="lang-zh">离子半径</span></dt><dd>{e.ionicRadius ? `${e.ionicRadius} pm` : '—'}</dd></div>
+        <div class="prop-row"><dt><span class="lang-en">Electronegativity</span><span class="lang-zh">电负性</span></dt><dd>{e.electronegativity ?? '—'}</dd></div>
       </dl>
     </div>
 
     <div class="prop-card glass-glow">
-      <h3>Electron Configuration</h3>
+      <h3><span class="lang-en">Electron Configuration</span><span class="lang-zh">电子排布</span></h3>
       <dl class="prop-list">
-        <div class="prop-row"><dt>Config</dt><dd class="electron-config">{e.electronConfig}</dd></div>
-        <div class="prop-row"><dt>Shells</dt><dd>{e.shells.join(', ')}</dd></div>
-        <div class="prop-row"><dt>Oxidation States</dt><dd>{e.oxidation.map(o => o > 0 ? `+${o}` : String(o)).join(', ')}</dd></div>
+        <div class="prop-row"><dt><span class="lang-en">Config</span><span class="lang-zh">电子构型</span></dt><dd class="electron-config">{e.electronConfig}</dd></div>
+        <div class="prop-row"><dt><span class="lang-en">Shells</span><span class="lang-zh">电子层</span></dt><dd>{e.shells.join(', ')}</dd></div>
+        <div class="prop-row"><dt><span class="lang-en">Oxidation States</span><span class="lang-zh">氧化态</span></dt><dd>{e.oxidation.map(o => o > 0 ? `+${o}` : String(o)).join(', ')}</dd></div>
       </dl>
     </div>
 
     <div class="prop-card glass-glow shell-card">
-      <h3>Electron Shells</h3>
+      <h3><span class="lang-en">Electron Shells</span><span class="lang-zh">电子层结构</span></h3>
       <ElectronShell shells={e.shells} />
     </div>
 
     <div class="prop-card glass-glow">
-      <h3>Discovery</h3>
+      <h3><span class="lang-en">Discovery</span><span class="lang-zh">发现历史</span></h3>
       <dl class="prop-list">
-        <div class="prop-row"><dt>Year</dt><dd>{e.year ?? 'Ancient'}</dd></div>
-        <div class="prop-row"><dt>Discoverer</dt><dd>{e.discoverer}</dd></div>
-        <div class="prop-row"><dt>Country</dt><dd>{e.country || '—'}</dd></div>
+        <div class="prop-row"><dt><span class="lang-en">Year</span><span class="lang-zh">年份</span></dt><dd><span class="lang-en">{yearText}</span><span class="lang-zh">{yearTextZh}</span></dd></div>
+        <div class="prop-row"><dt><span class="lang-en">Discoverer</span><span class="lang-zh">发现者</span></dt><dd>{discovererText}</dd></div>
+        <div class="prop-row"><dt><span class="lang-en">Country</span><span class="lang-zh">国家</span></dt><dd><span class="lang-en">{e.country || '—'}</span><span class="lang-zh">{COUNTRY_LABELS[e.country] || e.country || '—'}</span></dd></div>
       </dl>
     </div>
 
     <div class="prop-card glass-glow">
-      <h3>Uses &amp; Applications</h3>
-      <p class="prop-text">{e.uses}</p>
+      <h3><span class="lang-en">Uses &amp; Applications</span><span class="lang-zh">用途</span></h3>
+      <p class="prop-text lang-en">{e.uses || '—'}</p>
+      <p class="prop-text lang-zh">{e.uses ? (USES_ZH[e.uses] || e.uses) : '—'}</p>
     </div>
     <div class="prop-card glass-glow">
-      <h3>Memory Aid</h3>
-      <p class="prop-text mnemonic">{e.mnemonicEn}</p>
-      <p class="prop-text mnemonic-zh">{e.mnemonicZh}</p>
+      <h3><span class="lang-en">Common Compounds</span><span class="lang-zh">常见化合物</span></h3>
+      <p class="prop-text lang-en">{e.compoundsEn || '—'}</p>
+      <p class="prop-text lang-zh">{e.compoundsZh || '—'}</p>
     </div>
     <div class="prop-card glass-glow">
-      <h3>Appearance</h3>
-      <p class="prop-text cap">{e.color}</p>
+      <h3><span class="lang-en">Room Temperature</span><span class="lang-zh">常温特性</span></h3>
+      <p class="prop-text lang-en">{e.roomTempNoteEn || e.color || '—'}</p>
+      <p class="prop-text lang-zh">{e.roomTempNoteZh || e.colorZh || '—'}</p>
+    </div>
+    <div class="prop-card glass-glow">
+      <h3>
+        <span class="lang-en">Did You Know?</span>
+        <span class="lang-zh">你知道吗？</span>
+      </h3>
+      <p class="prop-text lang-en">{e.triviaEn || `The name ${e.nameEn} comes from ${e.symbol} and it was ${e.year ? `first identified in ${e.year}` : 'known since ancient times'}.`}</p>
+      <p class="prop-text lang-zh">{e.triviaZh || `${e.nameZh}的名称来源于其符号${e.symbol}，${e.year ? `于${e.year}年首次被确认` : '自古以来即为人类所知'}。`}</p>
+    </div>
+    <div class="prop-card glass-glow">
+      <h3><span class="lang-en">Memory Aid</span><span class="lang-zh">记忆口诀</span></h3>
+      <p class="prop-text mnemonic lang-en">{e.mnemonicEn}</p>
+      <p class="prop-text mnemonic-zh lang-zh">{e.mnemonicZh}</p>
+    </div>
+    <div class="prop-card glass-glow">
+      <h3><span class="lang-en">Appearance</span><span class="lang-zh">外观</span></h3>
+      <p class="prop-text cap lang-en">{e.color}</p>
+      <p class="prop-text lang-zh">{e.colorZh || e.color}</p>
+    </div>
+    <div class="prop-card glass-glow">
+      <h3><span class="lang-en">Safety Information</span><span class="lang-zh">安全须知</span></h3>
+      <ul class="prop-list prop-list-bullet lang-en">
+        {safetyInfo.en.map(w => <li>{w}</li>)}
+      </ul>
+      <ul class="prop-list prop-list-bullet lang-zh">
+        {safetyInfo.zh.map(w => <li>{w}</li>)}
+      </ul>
+    </div>
+    {sameGroup.length > 0 && (
+      <div class="prop-card glass-glow">
+        <h3><span class="lang-en">Related Elements (Same Group {e.group})</span><span class="lang-zh">相关元素（同第{e.group}族）</span></h3>
+        <div class="related-grid">
+          {sameGroup.map(el => (
+            <a href={`/${locale}/element/${el.z}`} class="related-chip" style={`--chip-color: ${getCategoryColor(el.category)}`}>
+              <span class="related-symbol">{el.symbol}</span>
+              <span class="lang-en">{el.nameEn}</span>
+              <span class="lang-zh">{el.nameZh}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+    {samePeriod.length > 0 && (
+      <div class="prop-card glass-glow">
+        <h3><span class="lang-en">Same Period ({e.period})</span><span class="lang-zh">同周期（第{e.period}周期）</span></h3>
+        <div class="related-grid">
+          {samePeriod.map(el => (
+            <a href={`/${locale}/element/${el.z}`} class="related-chip" style={`--chip-color: ${getCategoryColor(el.category)}`}>
+              <span class="related-symbol">{el.symbol}</span>
+              <span class="lang-en">{el.nameEn}</span>
+              <span class="lang-zh">{el.nameZh}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+    <div class="prop-card glass-glow">
+      <h3><span class="lang-en">References</span><span class="lang-zh">参考来源</span></h3>
+      <ul class="prop-list prop-list-bullet lang-en">
+        <li><a href="https://pubchem.ncbi.nlm.nih.gov/element/{e.symbol}" rel="external nofollow" target="_blank">PubChem — {e.nameEn}</a></li>
+        <li><a href={`https://en.wikipedia.org/wiki/${e.nameEn}`} rel="external nofollow" target="_blank">Wikipedia — {e.nameEn}</a></li>
+        <li><a href="https://www.rsc.org/periodic-table/element/{e.z}/{e.symbol.toLowerCase()}" rel="external nofollow" target="_blank">Royal Society of Chemistry</a></li>
+        <li><a href={`https://webbook.nist.gov/cgi/cbook.cgi?Formula=${e.symbol}`} rel="external nofollow" target="_blank">NIST Chemistry WebBook</a></li>
+      </ul>
+      <ul class="prop-list prop-list-bullet lang-zh">
+        <li><a href="https://pubchem.ncbi.nlm.nih.gov/element/{e.symbol}" rel="external nofollow" target="_blank">PubChem — {e.nameZh}</a></li>
+        <li><a href={`https://zh.wikipedia.org/wiki/${e.nameZh}`} rel="external nofollow" target="_blank">维基百科 — {e.nameZh}</a></li>
+        <li><a href="https://www.rsc.org/periodic-table/element/{e.z}/{e.symbol.toLowerCase()}" rel="external nofollow" target="_blank">英国皇家化学学会</a></li>
+        <li><a href={`https://webbook.nist.gov/cgi/cbook.cgi?Formula=${e.symbol}`} rel="external nofollow" target="_blank">NIST 化学 WebBook</a></li>
+      </ul>
     </div>
   </div>
 
@@ -105,9 +246,35 @@ const glowColor = getCategoryColor(e.category);
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M16 3h5v5M8 3H3v5M3 16v5h5M21 16v5h-5M21 3l-7 7M3 3l7 7M3 21l7-7M21 21l-7-7"/>
       </svg>
-      Add to Compare
+      <span class="lang-en">Add to Compare</span>
+      <span class="lang-zh">加入对比</span>
     </button>
-    <a href="/compare" class="btn-compare glass-glow btn-compare-link">View Compare ({e.z} selected)</a>
+    <a href={`/${locale}/compare`} class="btn-compare glass-glow btn-compare-link">
+      <span class="lang-en">View Compare</span>
+      <span class="lang-zh">查看对比</span>
+    </a>
+  </div>
+
+  <!-- Category info modal -->
+  <div class="cat-modal-overlay" id="cat-modal" hidden>
+    <div class="cat-modal glass-glow">
+      <div class="cat-modal-header">
+        <h3><span class="lang-en">Element Categories</span><span class="lang-zh">元素分类说明</span></h3>
+        <button class="cat-modal-close" id="cat-modal-close">&times;</button>
+      </div>
+      <div class="cat-modal-grid">
+        {CATEGORIES.map(cat => (
+          <div class="cat-modal-item" style={`--cat-accent: var(--cat-${cat.key});`}>
+            <div class="cat-modal-bar"></div>
+            <div class="cat-modal-body">
+              <strong><span class="lang-en">{cat.label}</span><span class="lang-zh">{cat.labelZh}</span></strong>
+              <p class="lang-en">{cat.desc}</p>
+              <p class="lang-zh">{cat.descZh}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   </div>
 </article>
 
@@ -117,18 +284,32 @@ const glowColor = getCategoryColor(e.category);
   const z = parseInt(btn.dataset.z || '0');
 
   function updateBtn() {
-    if (isInCompare(z)) {
-      btn.innerHTML = '&#x2713; Added';
-      btn.classList.add('is-added');
+    const added = isInCompare(z);
+    btn.classList.toggle('is-added', added);
+    const en = btn.querySelector('.lang-en')!;
+    const zh = btn.querySelector('.lang-zh')!;
+    const lang = document.documentElement.getAttribute('data-lang') || 'en';
+    if (added) {
+      en.textContent = '✓ Added';
+      zh.textContent = '✓ 已添加';
     } else {
-      btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M8 3H3v5M3 16v5h5M21 16v5h-5M21 3l-7 7M3 3l7 7M3 21l7-7M21 21l-7-7"/></svg> Add to Compare`;
-      btn.classList.remove('is-added');
+      en.textContent = 'Add to Compare';
+      zh.textContent = '加入对比';
     }
   }
 
   updateBtn();
   window.addEventListener('compare-updated', updateBtn);
   btn.addEventListener('click', () => isInCompare(z) ? removeFromCompare(z) : addToCompare(z));
+
+  // Category info modal
+  const infoBtn = document.getElementById('cat-info-btn')!;
+  const modal = document.getElementById('cat-modal')!;
+  const closeBtn = document.getElementById('cat-modal-close')!;
+  infoBtn.addEventListener('click', () => { modal.hidden = false; });
+  closeBtn.addEventListener('click', () => { modal.hidden = true; });
+  modal.addEventListener('click', (e) => { if (e.target === modal) modal.hidden = true; });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.hidden) modal.hidden = true; });
 </script>
 
 <style>
@@ -140,7 +321,7 @@ const glowColor = getCategoryColor(e.category);
   .detail-nav { display: flex; gap: 0.5rem; align-items: center; }
   .nav-current { font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-dim); }
   .nav-arrow { color: var(--text-dim); text-decoration: none; font-family: var(--font-mono); font-size: 0.8rem; padding: 0.25rem 0.6rem; border-radius: var(--radius-sm); border: 1px solid var(--border-glass); transition: all 0.2s; }
-  .nav-arrow:hover { color: var(--text-primary); border-color: var(--border-glow); }
+  .nav-arrow:hover { color: var(--text-primary); border-color: var(--border-glow); background: rgba(0,0,0,0.02); }
   .detail-hero { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; }
   .detail-z { font-family: var(--font-mono); font-size: 1rem; color: var(--text-dim); }
   .detail-symbol { font-family: var(--font-mono); font-size: 5rem; font-weight: 700; line-height: 1; animation: fadeInUp 0.6s ease-out; }
@@ -150,9 +331,9 @@ const glowColor = getCategoryColor(e.category);
 
   .detail-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
   .prop-card { padding: 1.25rem; border-radius: var(--radius-lg); }
-  .prop-card h3 { font-size: 0.85rem; color: var(--text-accent); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+  .prop-card h3 { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
   .prop-list { display: flex; flex-direction: column; gap: 0.5rem; }
-  .prop-row { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; padding-bottom: 0.4rem; border-bottom: 1px solid rgba(255,255,255,0.03); }
+  .prop-row { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; padding-bottom: 0.4rem; border-bottom: 1px solid rgba(0,0,0,0.03); }
   .prop-row dt { font-size: 0.8rem; color: var(--text-dim); flex-shrink: 0; }
   .prop-row dd { font-size: 0.85rem; color: var(--text-primary); text-align: right; font-weight: 500; }
   .prop-row dd.cap { text-transform: capitalize; }
@@ -161,6 +342,24 @@ const glowColor = getCategoryColor(e.category);
   .prop-text.mnemonic-zh { font-size: 0.85rem; color: var(--text-dim); margin-top: 0.4rem; }
   .prop-text.cap { text-transform: capitalize; }
   .shell-card { display: flex; flex-direction: column; align-items: center; }
+  .detail-intro {
+    padding: 1.25rem 1.5rem; border-radius: var(--radius-lg); margin-bottom: 1.5rem;
+  }
+  .detail-intro p { font-size: 0.92rem; color: var(--text-secondary); line-height: 1.8; }
+  .prop-list-bullet { padding-left: 1.2rem; }
+  .prop-list-bullet li { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 0.3rem; }
+  .prop-list-bullet a { color: var(--accent-blue); text-decoration: underline; }
+  .related-grid { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .related-chip {
+    display: flex; align-items: center; gap: 0.35rem;
+    padding: 0.35rem 0.7rem; border-radius: var(--radius-xl);
+    background: color-mix(in srgb, var(--chip-color, var(--accent-blue)) 8%, transparent);
+    border: 1px solid color-mix(in srgb, var(--chip-color, var(--accent-blue)) 25%, transparent);
+    text-decoration: none; color: var(--text-primary); font-size: 0.8rem;
+    transition: all 0.2s;
+  }
+  .related-chip:hover { border-color: var(--chip-color, var(--accent-blue)); transform: translateY(-1px); }
+  .related-symbol { font-family: var(--font-mono); font-weight: 700; color: var(--chip-color, var(--accent-blue)); }
 
   .detail-actions { display: flex; justify-content: center; gap: 1rem; padding: 2rem 0; flex-wrap: wrap; }
   .btn-compare {
@@ -170,9 +369,37 @@ const glowColor = getCategoryColor(e.category);
     font-size: 0.9rem; font-weight: 600; cursor: pointer;
     transition: all 0.25s; text-decoration: none;
   }
-  .btn-compare:hover { border-color: var(--border-glow); box-shadow: 0 0 20px rgba(124,77,255,0.2); transform: translateY(-1px); }
-  .btn-compare.is-added { border-color: var(--cat-nonmetal); box-shadow: 0 0 16px rgba(124,77,255,0.3); color: var(--cat-nonmetal); }
+  .btn-compare:hover { border-color: var(--accent-blue); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+  .btn-compare.is-added { border-color: var(--accent-green); color: var(--accent-green); background: color-mix(in srgb, var(--accent-green) 5%, #fff); }
   .btn-compare-link { font-weight: 400; font-size: 0.8rem; }
+
+  /* Category info button & modal */
+  .cat-info-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 16px; height: 16px; border-radius: 50%;
+    border: 1px solid var(--border-glass); background: var(--bg-card);
+    color: var(--text-dim); font-size: 0.6rem; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; padding: 0; line-height: 1;
+    vertical-align: middle;
+  }
+  .cat-info-btn:hover { border-color: var(--text-dim); color: var(--text-primary); }
+  .cat-modal-overlay {
+    position: fixed; inset: 0; z-index: 300;
+    background: rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center;
+    animation: fadeIn 0.2s ease-out;
+  }
+  .cat-modal-overlay[hidden] { display: none; }
+  .cat-modal { max-width: 680px; width: 90vw; max-height: 80vh; overflow-y: auto; border-radius: var(--radius-lg); padding: 1.5rem; }
+  .cat-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; }
+  .cat-modal-header h3 { font-size: 1.1rem; }
+  .cat-modal-close { background: none; border: none; color: var(--text-dim); font-size: 1.5rem; cursor: pointer; line-height: 1; padding: 0 0.25rem; }
+  .cat-modal-close:hover { color: var(--text-primary); }
+  .cat-modal-grid { display: flex; flex-direction: column; gap: 0.6rem; }
+  .cat-modal-item { display: flex; gap: 0; border-radius: var(--radius-sm); overflow: hidden; }
+  .cat-modal-bar { width: 4px; flex-shrink: 0; background: var(--cat-accent); border-radius: 2px 0 0 2px; }
+  .cat-modal-body { padding: 0.5rem 0.75rem; }
+  .cat-modal-body strong { font-size: 0.85rem; color: var(--text-primary); }
+  .cat-modal-body p { font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.2rem; line-height: 1.4; }
 
   @media (max-width: 720px) {
     .detail-symbol { font-size: 3.5rem; }

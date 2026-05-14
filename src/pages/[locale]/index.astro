@@ -1,0 +1,96 @@
+---
+import Layout from '../../components/Layout.astro';
+import PeriodicTable from '../../components/PeriodicTable.astro';
+import SearchBar from '../../components/SearchBar.astro';
+import TrendControls from '../../components/TrendControls.astro';
+import { CATEGORIES, getCategoryColor } from '../../utils/elements';
+
+export function getStaticPaths() {
+  return [{ params: { locale: 'en' } }, { params: { locale: 'zh' } }];
+}
+
+const locale = Astro.params.locale || 'en';
+---
+
+<Layout
+  title={locale === 'zh'
+    ? '化学元素周期表 — 118种元素完整数据 | 中英双语互动学习'
+    : 'Periodic Table of Elements — Interactive Chemistry Reference with 118 Elements'}
+  description={locale === 'zh'
+    ? '化学元素周期表，提供118种化学元素的完整数据：电子排布、原子量、熔点、沸点、密度、发现历史、用途。支持中英双语切换、元素对比、方程式配平、记忆卡片等化学学习工具。'
+    : 'Interactive periodic table of elements with 118 chemical elements. Complete data: electron configuration, atomic weight, melting point, boiling point, density, discovery history, uses. Bilingual Chinese-English chemistry learning tools including element comparison, equation balancer, and flashcards.'}
+  pathname={locale === 'en' ? '/en/' : '/zh/'}
+  currentLocale={locale}
+>
+  <div class="home-hero">
+    <h1 class="hero-title lang-en">The <span class="text-gradient">Elements</span></h1>
+    <h1 class="hero-title lang-zh"><span class="text-gradient">元素</span>周期表</h1>
+    <p class="hero-sub lang-en">Interactive periodic table &mdash; explore, learn, compare</p>
+    <p class="hero-sub lang-zh">交互式元素周期表 &mdash; 探索、学习、对比</p>
+  </div>
+
+  <div class="table-container">
+    <SearchBar />
+    <TrendControls />
+    <PeriodicTable locale={locale} />
+  </div>
+
+  <section class="category-guide">
+    <h2 class="guide-title">
+      <span class="lang-en">Element <span class="text-gradient">Categories</span></span>
+      <span class="lang-zh">元素<span class="text-gradient">分类</span>指南</span>
+    </h2>
+    <p class="guide-sub">
+      <span class="lang-en">Each color on the table represents a distinct chemical family with shared properties</span>
+      <span class="lang-zh">周期表上的每种颜色代表一个化学家族，成员共享相似性质</span>
+    </p>
+    <div class="guide-grid">
+      {CATEGORIES.map(cat => (
+        <div class="guide-card glass-glow" style={`--guide-color: var(--cat-${cat.key});`}>
+          <div class="guide-color-bar"></div>
+          <div class="guide-card-body">
+            <h3 class="guide-card-title">
+              <span class="lang-en">{cat.label}</span>
+              <span class="lang-zh">{cat.labelZh}</span>
+            </h3>
+            <p class="guide-card-desc lang-en">{cat.desc}</p>
+            <p class="guide-card-desc lang-zh">{cat.descZh}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .home-hero { text-align: center; padding: 2.5rem 1rem 1.5rem; }
+  .hero-title { font-size: clamp(2rem, 5vw, 3.5rem); margin-bottom: 0.5rem; }
+  .hero-sub { color: var(--text-secondary); font-size: 1.05rem; font-weight: 300; letter-spacing: 0.02em; }
+  .table-container { max-width: 1440px; margin: 0 auto; padding: 0 1.5rem 2rem; }
+
+  .category-guide { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem 5rem; }
+  .guide-title { text-align: center; font-size: clamp(1.5rem, 3vw, 2rem); margin-bottom: 0.4rem; }
+  .guide-sub { text-align: center; color: var(--text-dim); font-size: 0.9rem; margin-bottom: 2rem; }
+  .guide-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0.75rem; }
+  .guide-card {
+    display: flex; gap: 0; border-radius: var(--radius-md);
+    overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid var(--border-glass);
+  }
+  .guide-card:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--guide-color) 40%, transparent);
+    box-shadow: 0 8px 30px color-mix(in srgb, var(--guide-color) 15%, transparent);
+  }
+  .guide-color-bar {
+    width: 5px; flex-shrink: 0;
+    background: var(--guide-color);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--guide-color) 50%, transparent);
+  }
+  .guide-card-body { padding: 0.9rem 1rem; }
+  .guide-card-title {
+    font-family: var(--font-display); font-size: 0.9rem; font-weight: 600;
+    color: var(--text-primary); margin-bottom: 0.3rem;
+  }
+  .guide-card-desc { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; }
+</style>

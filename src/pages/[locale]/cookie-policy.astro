@@ -1,0 +1,39 @@
+---
+import Layout from '../../components/Layout.astro';
+const today = '2026-05-14';
+
+export function getStaticPaths() {
+  return [{ params: { locale: 'en' } }, { params: { locale: 'zh' } }];
+}
+
+const locale = Astro.params.locale || 'en';
+---
+<Layout
+  title={locale === 'zh' ? 'Cookie 政策 — 数据使用说明' : 'Cookie Policy — Data Usage'}
+  description={locale === 'zh' ? 'PeriodicTable Cookie 政策：我们仅使用 localStorage 存储您的语言偏好，不使用追踪或广告 cookie。' : 'PeriodicTable Cookie Policy: we only use localStorage to remember your language preference. No tracking or advertising cookies.'}
+  pathname={`/${locale}/cookie-policy`}
+  ogType="article"
+  currentLocale={locale}
+>
+<div class="page-root"><article class="page-article glass-glow">
+  <h1><span class="lang-en">Cookie Policy</span><span class="lang-zh">Cookie 政策</span></h1>
+  <p class="page-date"><span class="lang-en">Effective: {today}</span><span class="lang-zh">生效日期：{today}</span></p>
+  <section class="lang-en">
+    <h2>Our Cookie Usage</h2>
+    <p>We use one functional <code>localStorage</code> entry (<code>pt-lang</code>) to remember your language preference. This is not a cookie — it never leaves your browser. We do not use analytics, tracking, or advertising cookies. Google Fonts may set cookies per their privacy policy.</p>
+  </section>
+  <section class="lang-zh">
+    <h2>Cookie 使用说明</h2>
+    <p>我们使用一个功能性 <code>localStorage</code> 条目（<code>pt-lang</code>）来记住您的语言偏好。这不是 cookie——它永远不会离开您的浏览器。我们不使用分析、追踪或广告 cookie。Google Fonts 可能根据其隐私政策设置 cookie。</p>
+  </section>
+</article></div>
+</Layout>
+<style>
+  .page-root { max-width: 760px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+  .page-article { padding: 2rem 2.5rem; border-radius: var(--radius-lg); }
+  .page-article h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .page-article h2 { font-size: 1.2rem; font-weight: 600; margin: 2rem 0 0.75rem; color: var(--text-primary); }
+  .page-article p { font-size: 0.95rem; line-height: 1.75; color: var(--text-secondary); }
+  .page-article code { background: var(--bg-card); padding: 0.1rem 0.35rem; border-radius: 3px; font-size: 0.85em; }
+  .page-date { color: var(--text-dim); font-size: 0.8rem; margin-bottom: 2rem; }
+</style>

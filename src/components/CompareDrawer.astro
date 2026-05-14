@@ -1,5 +1,8 @@
 ---
 import { getAllElements } from '../utils/elements';
+
+interface Props { locale?: string; }
+const { locale = 'en' } = Astro.props;
 ---
 
 <div class="compare-drawer" id="compare-drawer">
@@ -8,10 +11,10 @@ import { getAllElements } from '../utils/elements';
   </div>
   <div class="compare-content" id="compare-content">
     <div class="compare-header">
-      <h3>Compare Elements</h3>
+      <h3><span class="lang-en">Compare Elements</span><span class="lang-zh">元素对比</span></h3>
       <div>
-        <a href="/compare" class="compare-view-link">Full View</a>
-        <button class="compare-clear" id="compare-clear">Clear</button>
+        <a href={`/${locale}/compare`} class="compare-view-link"><span class="lang-en">Full View</span><span class="lang-zh">完整对比</span></a>
+        <button class="compare-clear" id="compare-clear"><span class="lang-en">Clear</span><span class="lang-zh">清空</span></button>
       </div>
     </div>
     <div class="compare-slots" id="compare-slots"></div>
@@ -23,9 +26,9 @@ import { getAllElements } from '../utils/elements';
     position: fixed; bottom: 0; left: 50%;
     transform: translateX(-50%) translateY(calc(100% - 36px));
     z-index: 200; width: min(600px, 95vw);
-    background: var(--bg-surface); border: 1px solid var(--border-glow);
+    background: var(--bg-root); border: 1px solid var(--border-glass);
     border-bottom: none; border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    box-shadow: 0 -4px 30px rgba(0,0,0,0.5);
+    box-shadow: 0 -4px 30px rgba(0,0,0,0.08);
     transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
   }
   .compare-drawer.is-open { transform: translateX(-50%) translateY(0); }
@@ -40,10 +43,10 @@ import { getAllElements } from '../utils/elements';
   .compare-view-link { color: var(--text-dim); font-size: 0.75rem; text-decoration: none; transition: color 0.2s; }
   .compare-view-link:hover { color: var(--text-primary); }
   .compare-clear { background: none; border: 1px solid var(--border-glass); color: var(--text-dim); padding: 0.25rem 0.75rem; border-radius: var(--radius-md); font-size: 0.75rem; cursor: pointer; transition: all 0.2s; }
-  .compare-clear:hover { border-color: var(--cat-alkali); color: var(--cat-alkali); }
+  .compare-clear:hover { border-color: var(--accent-red); color: var(--accent-red); }
   .compare-slots { display: flex; gap: 0.5rem; }
   .compare-slot {
-    flex: 1; min-height: 60px; border: 1px dashed rgba(255,255,255,0.1);
+    flex: 1; min-height: 60px; border: 1px dashed rgba(0,0,0,0.10);
     border-radius: var(--radius-md); display: flex; flex-direction: column;
     align-items: center; justify-content: center; padding: 0.5rem;
   }
@@ -51,7 +54,7 @@ import { getAllElements } from '../utils/elements';
   .compare-slot .slot-symbol { font-family: var(--font-mono); font-size: 1.1rem; font-weight: 700; }
   .compare-slot .slot-name { font-size: 0.6rem; color: var(--text-dim); }
   .compare-slot .slot-remove { position: absolute; top: 2px; right: 6px; background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 0.9rem; line-height: 1; }
-  .compare-slot .slot-remove:hover { color: var(--cat-alkali); }
+  .compare-slot .slot-remove:hover { color: var(--accent-red); }
 </style>
 
 <script>
@@ -80,11 +83,12 @@ import { getAllElements } from '../utils/elements';
       if (el) {
         div.innerHTML = `
           <span class="slot-symbol" style="color:var(--cat-${el.category})">${el.symbol}</span>
-          <span class="slot-name">${el.nameEn}</span>
+          <span class="slot-name lang-en">${el.nameEn}</span>
+          <span class="slot-name lang-zh">${el.nameZh}</span>
           <button class="slot-remove" data-z="${el.z}">&times;</button>
         `;
       } else {
-        div.innerHTML = '<span style="color:var(--text-dim);font-size:0.7rem;">Select element</span>';
+        div.innerHTML = '<span class="lang-en" style="color:var(--text-dim);font-size:0.7rem;">Select element</span><span class="lang-zh" style="color:var(--text-dim);font-size:0.7rem;">选择元素</span>';
       }
       slots.appendChild(div);
     }

@@ -1,0 +1,31 @@
+---
+import Layout from '../../../components/Layout.astro';
+import FlashcardDeck from '../../../components/FlashcardDeck.astro';
+
+export function getStaticPaths() {
+  return [{ params: { locale: 'en' } }, { params: { locale: 'zh' } }];
+}
+
+const locale = Astro.params.locale || 'en';
+---
+
+<Layout
+  title={locale === 'zh' ? '化学元素周期表记忆卡片 — 118种元素互动学习工具' : 'Periodic Table Flashcards — 118 Element Interactive Learning Tool'}
+  description={locale === 'zh' ? '化学元素周期表互动记忆卡片工具：学习118种元素的符号、名称、原子序数、物理性质、化学性质。支持中英双语翻面学习，适合化学学生备考和教师教学。' : 'Interactive periodic table flashcards: memorize 118 element symbols, names, atomic numbers, and properties. Bilingual flip card learning for chemistry students and teachers.'}
+  pathname={`/${locale}/tools/flashcards`}
+  currentLocale={locale}
+>
+  <div class="tool-page">
+    <h1 class="lang-en">Element <span class="text-gradient">Flashcards</span></h1>
+    <h1 class="lang-zh">元素<span class="text-gradient">记忆卡片</span></h1>
+    <p class="tool-sub lang-en">Flip through elements to memorize symbols, names, and properties</p>
+    <p class="tool-sub lang-zh">翻动卡片，记忆元素符号、名称和性质</p>
+    <FlashcardDeck />
+  </div>
+</Layout>
+
+<style>
+  .tool-page { max-width: 700px; margin: 0 auto; padding: 3rem 1.5rem 4rem; text-align: center; }
+  .tool-sub { color: var(--text-secondary); margin-bottom: 2rem; }
+  h1 { margin-bottom: 0.5rem; }
+</style>

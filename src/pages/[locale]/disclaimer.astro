@@ -1,0 +1,42 @@
+---
+import Layout from '../../components/Layout.astro';
+const today = '2026-05-14';
+
+export function getStaticPaths() {
+  return [{ params: { locale: 'en' } }, { params: { locale: 'zh' } }];
+}
+
+const locale = Astro.params.locale || 'en';
+---
+<Layout
+  title={locale === 'zh' ? '免责声明 — 教育用途说明' : 'Disclaimer — Educational Use'}
+  description={locale === 'zh' ? 'PeriodicTable 免责声明：本网站仅为教育参考资源，数据不适用于安全关键场景。使用前请阅读完整免责声明。' : 'PeriodicTable Disclaimer: this is an educational reference only. Data is not intended for safety-critical applications. Read the full disclaimer.'}
+  pathname={`/${locale}/disclaimer`}
+  ogType="article"
+  currentLocale={locale}
+>
+<div class="page-root"><article class="page-article glass-glow">
+  <h1><span class="lang-en">Disclaimer</span><span class="lang-zh">免责声明</span></h1>
+  <p class="page-date"><span class="lang-en">Effective: {today}</span><span class="lang-zh">生效日期：{today}</span></p>
+  <section class="lang-en">
+    <h2>Educational Use Only</h2>
+    <p>PeriodicTable is an <strong>educational reference</strong>. Data provided is NOT intended for safety-critical chemical handling, medical diagnosis, industrial process design, regulatory compliance, or emergency response. Always cross-reference with primary sources (SDS, IUPAC, NIST) before using data in professional or safety-related contexts.</p>
+    <h2>Data Accuracy</h2>
+    <p>Element properties may vary between authoritative sources. Values for synthetic elements (Z 104-118) may be based on limited experimental data. Interactive tools provide approximate results for educational demonstration only.</p>
+  </section>
+  <section class="lang-zh">
+    <h2>仅限教育用途</h2>
+    <p>PeriodicTable 是一个<strong>教育参考资源</strong>。所提供的数据不适用于安全关键的化学品处理、医疗诊断、工业过程设计、法规合规或应急响应。在专业或安全相关场景中使用数据前，请始终与第一手来源（SDS、IUPAC、NIST）进行交叉核对。</p>
+    <h2>数据准确性</h2>
+    <p>不同权威来源之间的元素属性值可能有所不同。人造元素（Z 104-118）的数值可能基于有限的实验数据。交互式工具提供近似结果，仅供教育演示使用。</p>
+  </section>
+</article></div>
+</Layout>
+<style>
+  .page-root { max-width: 760px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+  .page-article { padding: 2rem 2.5rem; border-radius: var(--radius-lg); }
+  .page-article h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .page-article h2 { font-size: 1.2rem; font-weight: 600; margin: 2rem 0 0.75rem; color: var(--text-primary); }
+  .page-article p { font-size: 0.95rem; line-height: 1.75; color: var(--text-secondary); }
+  .page-date { color: var(--text-dim); font-size: 0.8rem; margin-bottom: 2rem; }
+</style>

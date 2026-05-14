@@ -1,119 +1,225 @@
 ---
-import { getAllElements, CATEGORIES } from '../utils/elements';
+import { getAllElements, CATEGORIES, USES_ZH, getCategoryLabel, getCategoryLabelZh } from '../utils/elements';
 ---
 
 <div class="flashcard-root">
   <div class="flashcard-controls">
     <select id="fc-filter" class="fc-select">
-      <option value="all">All Elements</option>
-      {CATEGORIES.map(c => (<option value={c.key}>{c.label}</option>))}
+      <option value="all" class="lang-en">All Elements</option>
+      <option value="all" class="lang-zh">全部元素</option>
+      {CATEGORIES.map(c => (<option value={c.key} class="lang-en">{c.label}</option>))}
+          {CATEGORIES.map(c => (<option value={c.key} class="lang-zh">{c.labelZh}</option>))}
     </select>
     <label class="fc-toggle">
-      <input type="checkbox" id="fc-random" /> <span>Random</span>
+      <input type="checkbox" id="fc-random" /> <span class="lang-en">Random</span><span class="lang-zh">随机</span>
     </label>
     <span class="fc-progress" id="fc-progress">0 / 0</span>
   </div>
 
   <div class="fc-card-wrap" id="fc-card-wrap">
-    <div class="fc-card glass-glow" id="fc-card">
-      <div class="fc-card-front">
+    <div class="fc-card" id="fc-card">
+      <div class="fc-card-front glass-glow">
         <span class="fc-symbol" id="fc-symbol">—</span>
         <span class="fc-z" id="fc-z">0</span>
       </div>
-      <div class="fc-card-back">
-        <span class="fc-name-en" id="fc-name-en">—</span>
-        <span class="fc-name-zh" id="fc-name-zh">—</span>
-        <span class="fc-mnemonic" id="fc-mnemonic">—</span>
-        <span class="fc-uses" id="fc-uses">—</span>
+      <div class="fc-card-back glass-glow">
+        <span class="fc-name-en lang-en" id="fc-name-en">—</span>
+        <span class="fc-name-zh lang-zh" id="fc-name-zh">—</span>
+        <div class="fc-back-scroll">
+          <div class="fc-props">
+            <span class="fc-prop"><span class="lang-en">Category</span><span class="lang-zh">分类</span><span id="fc-cat-val"></span></span>
+            <span class="fc-prop"><span class="lang-en">Weight</span><span class="lang-zh">原子量</span><span id="fc-weight-val"></span></span>
+            <span class="fc-prop"><span class="lang-en">State</span><span class="lang-zh">状态</span><span id="fc-state-val"></span></span>
+            <span class="fc-prop"><span class="lang-en">Period/Group/Block</span><span class="lang-zh">周期/族/区</span><span id="fc-pgb-val"></span></span>
+            <span class="fc-prop"><span class="lang-en">Melting</span><span class="lang-zh">熔点</span><span id="fc-melt-val"></span></span>
+            <span class="fc-prop"><span class="lang-en">Boiling</span><span class="lang-zh">沸点</span><span id="fc-boil-val"></span></span>
+            <span class="fc-prop"><span class="lang-en">Density</span><span class="lang-zh">密度</span><span id="fc-dens-val"></span></span>
+            <span class="fc-prop"><span class="lang-en">Atomic Radius</span><span class="lang-zh">原子半径</span><span id="fc-radius-val"></span></span>
+            <span class="fc-prop"><span class="lang-en">Electronegativity</span><span class="lang-zh">电负性</span><span id="fc-eneg-val"></span></span>
+            <span class="fc-prop"><span class="lang-en">Config</span><span class="lang-zh">电子排布</span><span id="fc-config-val"></span></span>
+            <span class="fc-prop"><span class="lang-en">Oxidation</span><span class="lang-zh">氧化态</span><span id="fc-oxid-val"></span></span>
+            <span class="fc-prop"><span class="lang-en">Year</span><span class="lang-zh">发现年份</span><span id="fc-year-val"></span></span>
+            <span class="fc-prop"><span class="lang-en">Appearance</span><span class="lang-zh">外观</span><span id="fc-color-val"></span></span>
+          </div>
+          <span class="fc-mnemonic lang-en" id="fc-mnemonic-en">—</span>
+          <span class="fc-mnemonic lang-zh" id="fc-mnemonic-zh">—</span>
+          <span class="fc-uses lang-en" id="fc-uses-en">—</span>
+          <span class="fc-uses lang-zh" id="fc-uses-zh">—</span>
+        </div>
       </div>
     </div>
   </div>
 
   <div class="fc-actions">
-    <button class="fc-btn" id="fc-prev">&larr; Prev</button>
-    <button class="fc-btn fc-btn-primary" id="fc-flip">Flip</button>
-    <button class="fc-btn" id="fc-next">Next &rarr;</button>
+    <button class="fc-btn" id="fc-prev"><span class="lang-en">&larr; Prev</span><span class="lang-zh">&larr; 上一个</span></button>
+    <button class="fc-btn fc-btn-primary" id="fc-flip"><span class="lang-en">Flip</span><span class="lang-zh">翻转</span></button>
+    <button class="fc-btn" id="fc-next"><span class="lang-en">Next &rarr;</span><span class="lang-zh">下一个 &rarr;</span></button>
   </div>
-  <p class="fc-hint">Click card or press Space to flip. Arrow keys to navigate.</p>
+  <p class="fc-hint lang-en">Click card or press Space to flip. Arrow keys to navigate.</p>
+  <p class="fc-hint lang-zh">点击卡片或按空格翻转，方向键导航。</p>
 </div>
 
+<script type="application/json" id="fc-data-uses" set:html={JSON.stringify(USES_ZH)}></script>
+<script type="application/json" id="fc-data-cats" set:html={JSON.stringify(CATEGORIES)}></script>
 <script>
-  const card = document.getElementById('fc-card')!;
-  const symbolEl = document.getElementById('fc-symbol')!;
-  const zEl = document.getElementById('fc-z')!;
-  const nameEnEl = document.getElementById('fc-name-en')!;
-  const nameZhEl = document.getElementById('fc-name-zh')!;
-  const mnemonicEl = document.getElementById('fc-mnemonic')!;
-  const usesEl = document.getElementById('fc-uses')!;
-  const progressEl = document.getElementById('fc-progress')!;
-  const filterSelect = document.getElementById('fc-filter') as HTMLSelectElement;
-  const randomCheck = document.getElementById('fc-random') as HTMLInputElement;
+  (function() {
+    var USES_ZH = JSON.parse(document.getElementById('fc-data-uses').textContent.trim());
+    var CATEGORIES = JSON.parse(document.getElementById('fc-data-cats').textContent.trim());
+    function getCategoryLabel(cat) { var c = CATEGORIES.find(function(x) { return x.key === cat; }); return c ? c.label : cat; }
+    function getCategoryLabelZh(cat) { var c = CATEGORIES.find(function(x) { return x.key === cat; }); return c ? c.labelZh : cat; }
 
-  let deck: any[] = [];
-  let currentIdx = 0;
-  let flipped = false;
+    const card = document.getElementById('fc-card');
+    const symbolEl = document.getElementById('fc-symbol');
+    const zEl = document.getElementById('fc-z');
+    const nameEnEl = document.getElementById('fc-name-en');
+    const nameZhEl = document.getElementById('fc-name-zh');
+    const mnemonicEnEl = document.getElementById('fc-mnemonic-en');
+    const mnemonicZhEl = document.getElementById('fc-mnemonic-zh');
+    const usesEnEl = document.getElementById('fc-uses-en');
+    const usesZhEl = document.getElementById('fc-uses-zh');
+    const progressEl = document.getElementById('fc-progress');
+    const filterSelect = document.getElementById('fc-filter');
+    const randomCheck = document.getElementById('fc-random');
+    // Property elements
+    const catValEl = document.getElementById('fc-cat-val');
+    const weightValEl = document.getElementById('fc-weight-val');
+    const stateValEl = document.getElementById('fc-state-val');
+    const pgbValEl = document.getElementById('fc-pgb-val');
+    const meltValEl = document.getElementById('fc-melt-val');
+    const boilValEl = document.getElementById('fc-boil-val');
+    const densValEl = document.getElementById('fc-dens-val');
+    const radiusValEl = document.getElementById('fc-radius-val');
+    const enegValEl = document.getElementById('fc-eneg-val');
+    const configValEl = document.getElementById('fc-config-val');
+    const oxidValEl = document.getElementById('fc-oxid-val');
+    const yearValEl = document.getElementById('fc-year-val');
+    const colorValEl = document.getElementById('fc-color-val');
 
-  async function init() {
-    const res = await fetch('/elements-data.json');
-    const allElements = await res.json();
-    buildDeck(allElements);
-  }
+    var STATE_LABELS = { solid: 'Solid / 固体', liquid: 'Liquid / 液体', gas: 'Gas / 气体', synthetic: 'Synthetic / 人造' };
+    function fmtTemp(c) { if (c == null) return '—'; return (c > 0 ? '+' : '') + c + '°C'; }
+    function fmtDens(d) { if (d == null) return '—'; return d < 0.01 ? d + ' g/cm³' : d.toFixed(2) + ' g/cm³'; }
 
-  function buildDeck(allElements: any[]) {
-    const cat = filterSelect.value;
-    deck = cat === 'all' ? [...allElements] : allElements.filter((e: any) => e.category === cat);
-    if (randomCheck.checked) {
-      for (let i = deck.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [deck[i], deck[j]] = [deck[j], deck[i]];
+    let deck = [];
+    let currentIdx = 0;
+    let flipped = false;
+
+    async function init() {
+      try {
+        const res = await fetch('/elements-data.json');
+        const allElements = await res.json();
+        buildDeck(allElements);
+      } catch (err) {
+        console.error('Flashcard data load failed:', err);
+        symbolEl.textContent = '!';
+        zEl.textContent = 'Error';
       }
     }
-    currentIdx = 0;
-    flipped = false;
-    showCard();
-  }
 
-  function showCard() {
-    if (deck.length === 0) {
-      symbolEl.textContent = '—'; zEl.textContent = '0';
-      nameEnEl.textContent = 'No elements'; nameZhEl.textContent = '';
-      mnemonicEl.textContent = ''; usesEl.textContent = '';
-      progressEl.textContent = '0 / 0'; return;
+    function buildDeck(allElements) {
+      var cat = filterSelect.value;
+      deck = cat === 'all' ? allElements.slice() : allElements.filter(function(e) { return e.category === cat; });
+      if (randomCheck.checked) {
+        for (var i = deck.length - 1; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          var tmp = deck[i]; deck[i] = deck[j]; deck[j] = tmp;
+        }
+      }
+      currentIdx = 0;
+      flipped = false;
+      card.classList.remove('is-flipped');
+      showCard();
     }
-    const el = deck[currentIdx];
-    symbolEl.textContent = el.symbol;
-    zEl.textContent = String(el.z);
-    nameEnEl.textContent = el.nameEn;
-    nameZhEl.textContent = el.nameZh;
-    mnemonicEl.textContent = el.mnemonicEn || el.mnemonicZh || '';
-    usesEl.textContent = el.uses || '';
-    progressEl.textContent = `${currentIdx + 1} / ${deck.length}`;
-    card.classList.remove('is-flipped');
-    flipped = false;
-  }
 
-  function flip() { flipped = !flipped; card.classList.toggle('is-flipped', flipped); }
+    function val(v) { return v != null ? String(v) : '—'; }
+    function valBilingual(en, zh) {
+      return '<span class="lang-en">' + (en != null ? en : '—') + '</span><span class="lang-zh">' + (zh != null ? zh : '—') + '</span>';
+    }
 
-  card.addEventListener('click', flip);
-  document.getElementById('fc-flip')!.addEventListener('click', flip);
-  document.getElementById('fc-prev')!.addEventListener('click', () => {
-    if (deck.length === 0) return;
-    currentIdx = (currentIdx - 1 + deck.length) % deck.length;
-    showCard();
-  });
-  document.getElementById('fc-next')!.addEventListener('click', () => {
-    if (deck.length === 0) return;
-    currentIdx = (currentIdx + 1) % deck.length;
-    showCard();
-  });
-  document.addEventListener('keydown', (e) => {
-    if (e.key === ' ') { e.preventDefault(); flip(); }
-    if (e.key === 'ArrowLeft') { e.preventDefault(); document.getElementById('fc-prev')!.click(); }
-    if (e.key === 'ArrowRight') { e.preventDefault(); document.getElementById('fc-next')!.click(); }
-  });
-  filterSelect.addEventListener('change', () => init());
-  randomCheck.addEventListener('change', () => init());
-  init();
+    function showCard() {
+      if (deck.length === 0) {
+        symbolEl.textContent = '—'; zEl.textContent = '0';
+        nameEnEl.textContent = ''; nameZhEl.textContent = '';
+        [catValEl, weightValEl, stateValEl, pgbValEl, meltValEl, boilValEl, densValEl, radiusValEl, enegValEl, configValEl, oxidValEl, yearValEl, colorValEl].forEach(function(el) { el.innerHTML = ''; });
+        mnemonicEnEl.textContent = ''; mnemonicZhEl.textContent = '';
+        usesEnEl.textContent = ''; usesZhEl.textContent = '';
+        progressEl.textContent = '0 / 0';
+        return;
+      }
+      var el = deck[currentIdx];
+      symbolEl.textContent = el.symbol;
+      zEl.textContent = String(el.z);
+      nameEnEl.textContent = el.nameEn || '';
+      nameZhEl.textContent = el.nameZh || '';
+      // Category with color
+      var catColor = 'var(--cat-' + el.category + ')';
+      catValEl.innerHTML = '<span class="lang-en" style="color:' + catColor + '">' + getCategoryLabel(el.category) + '</span><span class="lang-zh" style="color:' + catColor + '">' + getCategoryLabelZh(el.category) + '</span>';
+      // Weight
+      weightValEl.innerHTML = '<span class="lang-en">' + (el.weight || '—') + ' u</span><span class="lang-zh">' + (el.weight || '—') + ' u</span>';
+      // State
+      stateValEl.innerHTML = valBilingual(el.state ? el.state.charAt(0).toUpperCase() + el.state.slice(1) : null, STATE_LABELS[el.state] || el.state);
+      // Period / Group / Block
+      var pgbEn = 'P' + el.period + ' / G' + (el.group != null ? el.group : '—') + ' / ' + (el.block || '—') + '-block';
+      var pgbZh = '第' + el.period + '周期 / 第' + (el.group != null ? el.group : '—') + '族 / ' + (el.block || '—') + '区';
+      pgbValEl.innerHTML = valBilingual(pgbEn, pgbZh);
+      // Melting
+      meltValEl.innerHTML = valBilingual(fmtTemp(el.melting), fmtTemp(el.melting));
+      // Boiling
+      boilValEl.innerHTML = valBilingual(fmtTemp(el.boiling), fmtTemp(el.boiling));
+      // Density
+      densValEl.innerHTML = valBilingual(fmtDens(el.density), fmtDens(el.density));
+      // Atomic Radius
+      radiusValEl.innerHTML = valBilingual(el.atomicRadius ? el.atomicRadius + ' pm' : null, el.atomicRadius ? el.atomicRadius + ' pm' : null);
+      // Electronegativity
+      enegValEl.innerHTML = valBilingual(val(el.electronegativity), val(el.electronegativity));
+      // Electron config
+      configValEl.innerHTML = valBilingual(el.electronConfig, el.electronConfig);
+      // Oxidation
+      var oxidStr = el.oxidation && el.oxidation.length ? el.oxidation.map(function(o) { return o > 0 ? '+' + o : String(o); }).join(', ') : null;
+      oxidValEl.innerHTML = valBilingual(oxidStr, oxidStr);
+      // Year
+      var yearEn = el.year ? String(el.year) + (el.year < 0 ? ' BCE' : '') : 'Ancient';
+      var yearZh = el.year ? String(el.year) + ' 年' : '古代';
+      yearValEl.innerHTML = valBilingual(yearEn, yearZh);
+      // Appearance / Color
+      colorValEl.innerHTML = valBilingual(el.color, el.colorZh || el.color);
+      // Mnemonic
+      mnemonicEnEl.textContent = el.mnemonicEn || '';
+      mnemonicZhEl.textContent = el.mnemonicZh || '';
+      // Uses
+      usesEnEl.textContent = el.uses || '';
+      usesZhEl.textContent = USES_ZH[el.uses] || el.uses || '';
+      progressEl.textContent = (currentIdx + 1) + ' / ' + deck.length;
+    }
+
+    function flip() {
+      flipped = !flipped;
+      if (flipped) { card.classList.add('is-flipped'); }
+      else { card.classList.remove('is-flipped'); }
+    }
+
+    card.addEventListener('click', flip);
+    document.getElementById('fc-flip').addEventListener('click', flip);
+    document.getElementById('fc-prev').addEventListener('click', function() {
+      if (deck.length === 0) return;
+      currentIdx = (currentIdx - 1 + deck.length) % deck.length;
+      flipped = false; card.classList.remove('is-flipped');
+      showCard();
+    });
+    document.getElementById('fc-next').addEventListener('click', function() {
+      if (deck.length === 0) return;
+      currentIdx = (currentIdx + 1) % deck.length;
+      flipped = false; card.classList.remove('is-flipped');
+      showCard();
+    });
+    document.addEventListener('keydown', function(e) {
+      if (e.key === ' ') { e.preventDefault(); flip(); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); document.getElementById('fc-prev').click(); }
+      if (e.key === 'ArrowRight') { e.preventDefault(); document.getElementById('fc-next').click(); }
+    });
+    filterSelect.addEventListener('change', function() { init(); });
+    randomCheck.addEventListener('change', function() { init(); });
+    init();
+  })();
 </script>
 
 <style>
@@ -128,27 +234,53 @@ import { getAllElements, CATEGORIES } from '../utils/elements';
     width: 100%; aspect-ratio: 3 / 4; border-radius: var(--radius-xl);
     cursor: pointer; position: relative;
     transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    transform-style: preserve-3d; user-select: none;
+    transform-style: preserve-3d;
   }
   .fc-card.is-flipped { transform: rotateY(180deg); }
   .fc-card-front, .fc-card-back {
-    position: absolute; inset: 0; backface-visibility: hidden;
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
     display: flex; flex-direction: column; align-items: center;
     justify-content: center; padding: 1.5rem; border-radius: inherit;
   }
-  .fc-card-front { background: var(--bg-card); border: 1px solid var(--border-glow); gap: 0.5rem; }
-  .fc-card-back { transform: rotateY(180deg); background: var(--bg-card); border: 1px solid var(--border-glow); gap: 0.5rem; text-align: center; }
+  .fc-card-front {
+    gap: 0.5rem; z-index: 1;
+  }
+  .fc-card-back {
+    transform: rotateY(180deg);
+    gap: 0; text-align: center; z-index: 0;
+    justify-content: flex-start;
+    padding: 1rem 1.25rem;
+  }
+  .fc-back-scroll {
+    overflow-y: auto; flex: 1; width: 100%;
+    display: flex; flex-direction: column; gap: 0.5rem;
+    scrollbar-width: thin; scrollbar-color: var(--border-glass) transparent;
+  }
+  .fc-card.is-flipped .fc-card-front { z-index: 0; }
+  .fc-card.is-flipped .fc-card-back { z-index: 1; }
   .fc-symbol {
     font-family: var(--font-mono); font-size: 4rem; font-weight: 700;
-    background: linear-gradient(135deg, #c4b5fd, #7c4dff);
+    background: linear-gradient(135deg, var(--accent-red), var(--accent-orange), var(--accent-blue), var(--accent-purple));
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     background-clip: text;
   }
   .fc-z { font-family: var(--font-mono); font-size: 1rem; color: var(--text-dim); }
   .fc-name-en { font-family: var(--font-display); font-size: 1.4rem; font-weight: 600; color: var(--text-primary); }
-  .fc-name-zh { font-size: 1.2rem; color: var(--text-secondary); }
-  .fc-mnemonic { font-size: 0.85rem; color: var(--text-accent); margin-top: 0.5rem; line-height: 1.5; }
-  .fc-uses { font-size: 0.75rem; color: var(--text-dim); line-height: 1.4; }
+  .fc-name-zh { font-size: 1.2rem; color: var(--text-primary); }
+  .fc-props {
+    display: flex; flex-direction: column; gap: 0.2rem; width: 100%; text-align: left;
+    padding-bottom: 0.3rem; border-bottom: 1px solid var(--border-glass);
+  }
+  .fc-prop {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 0.4rem;
+    font-size: 0.68rem; line-height: 1.45;
+    padding-bottom: 0.15rem; border-bottom: 1px solid rgba(0,0,0,0.03);
+  }
+  .fc-prop > span:first-child { color: var(--text-dim); flex-shrink: 0; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  .fc-prop > span:last-child { color: var(--text-primary); text-align: right; font-weight: 500; }
+  .fc-mnemonic-en, .fc-mnemonic-zh { font-size: 0.82rem; color: var(--accent-blue); margin-top: 0.4rem; line-height: 1.5; }
+  .fc-uses-en, .fc-uses-zh { font-size: 0.75rem; color: var(--text-secondary); line-height: 1.4; }
   .fc-actions { display: flex; gap: 0.5rem; margin-top: 1.5rem; }
   .fc-btn {
     padding: 0.6rem 1rem; background: var(--bg-card);
@@ -156,8 +288,12 @@ import { getAllElements, CATEGORIES } from '../utils/elements';
     color: var(--text-primary); font-family: var(--font-display);
     font-size: 0.85rem; cursor: pointer; transition: all 0.2s;
   }
-  .fc-btn:hover { border-color: var(--border-glow); background: var(--bg-card-hover); }
-  .fc-btn-primary { background: linear-gradient(135deg, rgba(124,77,255,0.3), rgba(64,196,255,0.2)); border-color: var(--border-glow); font-weight: 600; padding: 0.6rem 1.8rem; }
-  .fc-btn-primary:hover { box-shadow: 0 0 20px rgba(124,77,255,0.3); }
-  .fc-hint { text-align: center; color: var(--text-dim); font-size: 0.7rem; margin-top: 1rem; }
+  .fc-btn:hover { border-color: var(--border-glow); background: var(--bg-card-hover); transform: translateY(-1px); }
+  .fc-btn-primary {
+    background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+    border: none; font-weight: 600; padding: 0.6rem 1.8rem; color: #fff;
+    box-shadow: 0 2px 12px rgba(74, 158, 255, 0.2);
+  }
+  .fc-btn-primary:hover { box-shadow: 0 4px 20px rgba(74, 158, 255, 0.35); transform: translateY(-1px); }
+  .fc-hint { text-align: center; color: var(--text-dim); font-size: 0.75rem; margin-top: 1rem; }
 </style>

@@ -1,0 +1,31 @@
+---
+import Layout from '../../../components/Layout.astro';
+import EquationBalancer from '../../../components/EquationBalancer.astro';
+
+export function getStaticPaths() {
+  return [{ params: { locale: 'en' } }, { params: { locale: 'zh' } }];
+}
+
+const locale = Astro.params.locale || 'en';
+---
+
+<Layout
+  title={locale === 'zh' ? '化学方程式配平工具 — 在线化学反应配平计算器' : 'Chemical Equation Balancer — Online Reaction Balancer Tool'}
+  description={locale === 'zh' ? '化学方程式在线配平工具：输入化学反应的反应物和生成物，自动计算配平系数。支持常见化学反应类型，适合化学学生练习、作业检查和教师教学使用。' : 'Balance chemical equations online: enter reactants and products, get stoichiometric coefficients automatically. Supports common reaction types for chemistry students and teachers.'}
+  pathname={`/${locale}/tools/balancer`}
+  currentLocale={locale}
+>
+  <div class="tool-page">
+    <h1 class="lang-en">Equation <span class="text-gradient">Balancer</span></h1>
+    <h1 class="lang-zh">方程式<span class="text-gradient">配平</span></h1>
+    <p class="tool-sub lang-en">Enter a chemical equation and get balanced coefficients instantly</p>
+    <p class="tool-sub lang-zh">输入化学方程式，即刻获得配平系数</p>
+    <EquationBalancer />
+  </div>
+</Layout>
+
+<style>
+  .tool-page { max-width: 700px; margin: 0 auto; padding: 3rem 1.5rem 4rem; text-align: center; }
+  .tool-sub { color: var(--text-secondary); margin-bottom: 2rem; }
+  h1 { margin-bottom: 0.5rem; }
+</style>

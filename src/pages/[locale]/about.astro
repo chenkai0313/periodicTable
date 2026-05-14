@@ -1,0 +1,73 @@
+---
+import Layout from '../../components/Layout.astro';
+const today = '2026-05-14';
+
+export function getStaticPaths() {
+  return [{ params: { locale: 'en' } }, { params: { locale: 'zh' } }];
+}
+
+const locale = Astro.params.locale || 'en';
+---
+<Layout
+  title={locale === 'zh' ? '关于我们 — 元素周期表教育平台' : 'About Us — PeriodicTable Education Platform'}
+  description={locale === 'zh' ? '了解 PeriodicTable 项目的使命：让化学教育变得直观、准确且有趣。数据来源于 PubChem、NIST、RSC 和 IUPAC 技术报告。' : 'Learn about the PeriodicTable project — our mission to make chemistry education accessible, accurate, and engaging for students and enthusiasts worldwide.'}
+  pathname={`/${locale}/about`}
+  ogType="article"
+  currentLocale={locale}
+>
+<div class="page-root">
+  <article class="page-article glass-glow">
+    <h1 class="page-title">
+      <span class="lang-en">About PeriodicTable</span>
+      <span class="lang-zh">关于 PeriodicTable</span>
+    </h1>
+    <p class="page-date">
+      <span class="lang-en">Last updated: {today}</span>
+      <span class="lang-zh">最后更新：{today}</span>
+    </p>
+
+    <section class="lang-en">
+      <h2>Our Mission</h2>
+      <p>PeriodicTable was built with a simple belief: understanding the elements should be intuitive, visual, and enjoyable. Whether you are a high school student preparing for an exam, a university researcher looking up quick reference data, or just someone curious about what makes up the universe — this site is for you.</p>
+      <p>We combine meticulously curated data from authoritative sources with interactive tools that make learning chemistry feel more like exploration than memorization.</p>
+
+      <h2>Our Data Sources</h2>
+      <ul>
+        <li><a href="https://pubchem.ncbi.nlm.nih.gov/" rel="external nofollow" target="_blank">PubChem</a> — NIH</li>
+        <li><a href="https://www.nist.gov/pml" rel="external nofollow" target="_blank">NIST</a></li>
+        <li><a href="https://www.rsc.org/periodic-table" rel="external nofollow" target="_blank">Royal Society of Chemistry</a></li>
+        <li>IUPAC Technical Reports</li>
+      </ul>
+    </section>
+
+    <section class="lang-zh">
+      <h2>我们的使命</h2>
+      <p>PeriodicTable 基于一个简单的信念而构建：理解元素应该是直观、可视化且令人愉悦的。无论你是备考的高中生、需要快速查阅参考数据的大学研究人员，还是对宇宙构成感到好奇的普通人——这个网站都为你而建。</p>
+      <p>我们将来自权威来源的精心校对数据与交互式工具相结合，使化学学习更像探索而非死记硬背。</p>
+
+      <h2>数据来源</h2>
+      <ul>
+        <li><a href="https://pubchem.ncbi.nlm.nih.gov/" rel="external nofollow" target="_blank">PubChem</a> — 美国国立卫生研究院</li>
+        <li><a href="https://www.nist.gov/pml" rel="external nofollow" target="_blank">NIST 物理测量实验室</a></li>
+        <li><a href="https://www.rsc.org/periodic-table" rel="external nofollow" target="_blank">英国皇家化学学会</a></li>
+        <li>IUPAC 技术报告</li>
+      </ul>
+    </section>
+  </article>
+</div>
+</Layout>
+
+<style>
+  .page-root { max-width: 760px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+  .page-article { padding: 2rem 2.5rem; border-radius: var(--radius-lg); }
+  .page-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .page-date { color: var(--text-dim); font-size: 0.8rem; margin-bottom: 2rem; }
+  .page-article h2 { font-size: 1.2rem; font-weight: 600; margin: 2rem 0 0.75rem; color: var(--text-primary); }
+  .page-article p { font-size: 0.95rem; line-height: 1.75; color: var(--text-secondary); margin-bottom: 1rem; }
+  .page-article ul { padding-left: 1.25rem; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.7; }
+  .page-article a { color: var(--accent-blue); text-decoration: underline; }
+  @media (max-width: 640px) {
+    .page-article { padding: 1.5rem 1.25rem; }
+    .page-title { font-size: 1.4rem; }
+  }
+</style>

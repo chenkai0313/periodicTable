@@ -1,0 +1,108 @@
+---
+import Layout from '../../../components/Layout.astro';
+import ElementDetail from '../../../components/ElementDetail.astro';
+import { getAllElements, getElementByZ, getCategoryLabel, getCategoryLabelZh, USES_ZH } from '../../../utils/elements';
+
+export function getStaticPaths() {
+  const elements = getAllElements();
+  return ['en', 'zh'].flatMap(locale =>
+    elements.map(e => ({
+      params: { locale, atomicNumber: String(e.z) },
+      props: { element: e },
+    }))
+  );
+}
+
+const { element } = Astro.props;
+const locale = Astro.params.locale || 'en';
+const SITE_URL = 'https://periodictable.app';
+const elUrl = `${SITE_URL}/${locale}/element/${element.z}`;
+const catEn = getCategoryLabel(element.category);
+const catEnCap = catEn.charAt(0).toUpperCase() + catEn.slice(1);
+
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: `${element.nameEn} (${element.symbol}) — Element ${element.z}`,
+  description: `Comprehensive reference for ${element.nameEn} (${element.nameZh}), atomic number ${element.z}. Properties, electron configuration, uses, history, and safety information.`,
+  author: { '@type': 'Organization', name: 'PeriodicTable', url: SITE_URL },
+  publisher: { '@type': 'Organization', name: 'PeriodicTable', url: SITE_URL },
+  dateModified: '2026-05-14',
+  url: elUrl,
+  inLanguage: locale === 'zh' ? 'zh-CN' : 'en',
+  about: {
+    '@type': 'Thing',
+    name: `${element.nameEn} (${element.symbol})`,
+    description: `${catEnCap}. Atomic number ${element.z}, atomic weight ${element.weight} u.`,
+  },
+};
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Periodic Table', item: SITE_URL },
+    { '@type': 'ListItem', position: 2, name: element.nameEn, item: elUrl },
+  ],
+};
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: `What is ${element.nameEn} used for?`,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: element.uses || `${element.nameEn} is used in various research and industrial applications.`,
+      },
+    },
+    {
+      '@type': 'Question',
+      name: `What group does ${element.nameEn} belong to?`,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: `${element.nameEn} belongs to the ${catEn} category, located in period ${element.period}${element.group ? `, group ${element.group}` : ''} of the periodic table.`,
+      },
+    },
+    {
+      '@type': 'Question',
+      name: `What is the electron configuration of ${element.nameEn}?`,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: `The electron configuration of ${element.nameEn} is ${element.electronConfig}, with shells ${element.shells.join(', ')}.`,
+      },
+    },
+    {
+      '@type': 'Question',
+      name: `Is ${element.nameEn} a metal?`,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: ['alkali', 'alkaline', 'transition', 'post-transition', 'lanthanide', 'actinide'].includes(element.category)
+          ? `Yes, ${element.nameEn} is classified as a metal (${catEn}).`
+          : element.category === 'metalloid'
+            ? `${element.nameEn} is a metalloid, with properties between metals and nonmetals.`
+            : `No, ${element.nameEn} is classified as a ${catEn}.`,
+      },
+    },
+  ],
+};
+---
+
+<Layout
+  title={locale === 'zh'
+    ? `${element.nameZh}（${element.symbol}）— 化学元素周期表 | 原子序数${element.z} 性质用途详解`
+    : `${element.nameEn} (${element.symbol}) — Periodic Table of Elements | Properties, Uses & History`}
+  description={locale === 'zh'
+    ? `化学元素周期表中的${element.nameZh}（${element.symbol}）：原子序数${element.z}，属于${getCategoryLabelZh(element.category)}，位于第${element.period}周期${element.group ? '第' + element.group + '族' : ''}。电子排布${element.electronConfig}，原子量${element.weight} u。${element.uses ? '用途：' + (USES_ZH[element.uses] || element.uses) + '。' : ''}查阅熔点、沸点、密度、发现历史、安全须知等化学元素完整数据。`
+    : `${element.nameEn} (${element.symbol}) in the periodic table of elements: atomic number ${element.z}, ${element.category}, period ${element.period}${element.group ? ', group ' + element.group : ''}. Electron configuration ${element.electronConfig}, atomic weight ${element.weight} u. Uses: ${element.uses}. Full chemical element data including melting point, boiling point, density, discovery history, and safety info.`}
+  pathname={`/${locale}/element/${element.z}`}
+  ogType="article"
+  currentLocale={locale}
+>
+  <ElementDetail element={element} locale={locale} />
+  <script type="application/ld+json" set:html={JSON.stringify(articleSchema)}></script>
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)}></script>
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)}></script>
+</Layout>

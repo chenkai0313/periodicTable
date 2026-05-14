@@ -1,21 +1,53 @@
 ---
-// Navbar.astro
+interface Props { currentLocale?: string; }
+const { currentLocale = 'en' } = Astro.props;
+// linkPrefix always includes locale for sub-pages (/en or /zh)
+const linkPrefix = '/' + currentLocale;
+// homePrefix is empty for root page (English default), or /locale for others
+const homePrefix = (currentLocale === 'en' && (Astro as any).url?.pathname === '/') ? '' : linkPrefix;
+const otherPrefix = currentLocale === 'zh' ? '/en' : '/zh';
+
+// Current URL pathname from Astro
+const currentPath = (Astro as any).url?.pathname || '/';
+// Build other locale URL: if at /, other is /zh/; if at /en/..., swap to /zh/...
+const hasLocalePrefix = /^\/[a-z]{2}(\/|$)/.test(currentPath);
+const otherPath = hasLocalePrefix
+  ? currentPath.replace(/^\/[a-z]{2}(\/|$)/, otherPrefix + '/')
+  : otherPrefix + (currentPath === '/' ? '/' : currentPath);
 ---
-<nav class="navbar glass-glow">
+
+<nav class="navbar glass">
   <div class="nav-inner">
-    <a href="/" class="nav-brand">
+    <a href={homePrefix + '/'} class="nav-brand">
       <span class="brand-icon">&#x269B;</span>
       <span class="brand-text">PeriodicTable</span>
     </a>
     <div class="nav-links">
-      <a href="/" class="nav-link">Table</a>
-      <a href="/tools/reference" class="nav-link">Reference</a>
-      <a href="/tools/balancer" class="nav-link">Balancer</a>
-      <a href="/tools/flashcards" class="nav-link">Flashcards</a>
-      <a href="/compare" class="nav-link nav-compare" id="nav-compare-link">
-        Compare
+      <a href={homePrefix + '/'} class="nav-link">
+        <span class="lang-en">Table</span>
+        <span class="lang-zh">周期表</span>
+      </a>
+      <a href={linkPrefix + '/tools/reference'} class="nav-link">
+        <span class="lang-en">Reference</span>
+        <span class="lang-zh">速查表</span>
+      </a>
+      <a href={linkPrefix + '/tools/balancer'} class="nav-link">
+        <span class="lang-en">Balancer</span>
+        <span class="lang-zh">配平</span>
+      </a>
+      <a href={linkPrefix + '/tools/flashcards'} class="nav-link">
+        <span class="lang-en">Flashcards</span>
+        <span class="lang-zh">记忆卡</span>
+      </a>
+      <a href={linkPrefix + '/compare'} class="nav-link nav-compare" id="nav-compare-link">
+        <span class="lang-en">Compare</span>
+        <span class="lang-zh">对比</span>
         <span class="compare-badge" id="compare-badge" style="display:none">0</span>
       </a>
+      <div class="lang-toggle" id="lang-toggle">
+        <a href={currentLocale === 'en' ? currentPath : otherPath} class={`lang-option${currentLocale === 'en' ? ' is-active' : ''}`} data-lang="en" id="lang-en-btn">EN</a>
+        <a href={currentLocale === 'zh' ? currentPath : otherPath} class={`lang-option${currentLocale === 'zh' ? ' is-active' : ''}`} data-lang="zh" id="lang-zh-btn">中文</a>
+      </div>
     </div>
   </div>
 </nav>
@@ -32,11 +64,19 @@
   }
   updateBadge();
   window.addEventListener('compare-updated', updateBadge);
+
+  // Language toggle: save preference on click
+  document.querySelectorAll('.lang-option').forEach(btn => {
+    btn.addEventListener('click', () => {
+      localStorage.setItem('pt-lang', btn.getAttribute('data-lang') || 'en');
+    });
+  });
 </script>
 
 <style>
   .navbar {
     position: sticky; top: 0; z-index: 100; padding: 0 2rem; height: 60px;
+    border-bottom: 1px solid var(--border-glass);
   }
   .nav-inner {
     max-width: 1400px; margin: 0 auto; height: 100%;
@@ -46,20 +86,34 @@
     display: flex; align-items: center; gap: 0.6rem;
     text-decoration: none; color: var(--text-primary);
   }
-  .brand-icon { font-size: 1.5rem; filter: drop-shadow(0 0 6px rgba(124,77,255,0.6)); }
+  .brand-icon {
+    font-size: 1.5rem;
+    background: linear-gradient(135deg, var(--accent-red), var(--accent-orange), var(--accent-yellow), var(--accent-green), var(--accent-blue), var(--accent-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
   .brand-text { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; letter-spacing: -0.01em; }
-  .nav-links { display: flex; gap: 0.25rem; }
+  .nav-links { display: flex; gap: 0.25rem; align-items: center; }
   .nav-link {
     color: var(--text-secondary); text-decoration: none;
     padding: 0.4rem 0.85rem; border-radius: var(--radius-md);
     font-size: 0.875rem; font-weight: 500; transition: all 0.2s; position: relative;
   }
-  .nav-link:hover { color: var(--text-primary); background: rgba(255,255,255,0.04); }
+  .nav-link::after {
+    content: ''; position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%);
+    width: 0; height: 2px; border-radius: 1px;
+    background: linear-gradient(90deg, var(--accent-red), var(--accent-orange), var(--accent-blue));
+    transition: width 0.25s ease;
+  }
+  .nav-link:hover { color: var(--text-primary); }
+  .nav-link:hover::after { width: 60%; }
   .nav-compare { display: flex; align-items: center; gap: 0.4rem; }
   .compare-badge {
     display: inline-flex; align-items: center; justify-content: center;
-    background: var(--cat-nonmetal); color: #fff; font-size: 0.7rem; font-weight: 700;
+    background: linear-gradient(135deg, var(--accent-red), var(--accent-orange));
+    color: #fff; font-size: 0.7rem; font-weight: 700;
     min-width: 18px; height: 18px; border-radius: 9px; padding: 0 4px;
-    box-shadow: 0 0 10px var(--cat-nonmetal);
   }
+  .lang-option { text-decoration: none; }
 </style>

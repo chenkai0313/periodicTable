@@ -3,26 +3,86 @@
 ---
 <div class="balancer-widget glass-glow">
   <div class="balancer-input-row">
-    <input type="text" id="eq-input" class="balancer-input" placeholder="e.g. H2 + O2 = H2O" autocomplete="off" />
-    <button id="eq-balance-btn" class="balance-btn">Balance</button>
+    <input type="text" id="eq-input" class="balancer-input" value="H2 + O2 = H2O" placeholder="e.g. H2 + O2 = H2O" autocomplete="off" />
+    <button id="eq-balance-btn" class="balance-btn"><span class="lang-en">Balance</span><span class="lang-zh">配平</span></button>
   </div>
   <div id="eq-result" class="balancer-result"></div>
-  <p class="balancer-hint">Use <code>=</code> or <code>&rarr;</code> to separate reactants and products</p>
+  <p class="balancer-hint lang-en">Use <code>=</code> or <code>&rarr;</code> to separate reactants and products</p>
+  <p class="balancer-hint lang-zh">用 <code>=</code> 或 <code>&rarr;</code> 分隔反应物和生成物</p>
 </div>
 
 <script>
-  import { balanceEquation } from '../utils/chemistry';
-  const input = document.getElementById('eq-input') as HTMLInputElement;
-  const btn = document.getElementById('eq-balance-btn') as HTMLButtonElement;
-  const result = document.getElementById('eq-result')!;
+  function parseCompound(formula) {
+    const elements = new Map();
+    let i = 0;
+    while (i < formula.length) {
+      if (formula[i] === '(') {
+        const close = formula.indexOf(')', i);
+        const inner = formula.slice(i + 1, close);
+        i = close + 1;
+        let count = '';
+        while (i < formula.length && /\d/.test(formula[i])) { count += formula[i]; i++; }
+        const mult = count ? parseInt(count) : 1;
+        const ic = parseCompound(inner);
+        for (const [el, n] of ic.elements) elements.set(el, (elements.get(el) || 0) + n * mult);
+      } else if (/[A-Z]/.test(formula[i])) {
+        let el = formula[i]; i++;
+        while (i < formula.length && /[a-z]/.test(formula[i])) { el += formula[i]; i++; }
+        let count = '';
+        while (i < formula.length && /\d/.test(formula[i])) { count += formula[i]; i++; }
+        elements.set(el, (elements.get(el) || 0) + (count ? parseInt(count) : 1));
+      } else { i++; }
+    }
+    return { elements, charge: 0 };
+  }
+
+  function balanceEquation(input) {
+    const parts = input.split(/[=→⟶]/);
+    if (parts.length !== 2) return null;
+    const reactants = parts[0].split('+').map(s => s.trim()).filter(Boolean);
+    const products = parts[1].split('+').map(s => s.trim()).filter(Boolean);
+    if (!reactants.length || !products.length) return null;
+
+    const allFormulas = [...reactants, ...products];
+    const compounds = allFormulas.map(parseCompound);
+    const elArr = Array.from(new Set(compounds.flatMap(c => Array.from(c.elements.keys()))));
+
+    const n = allFormulas.length;
+    const coeffs = new Array(n).fill(1);
+
+    function check() {
+      for (const el of elArr) {
+        let lhs = 0, rhs = 0;
+        for (let i = 0; i < reactants.length; i++) lhs += coeffs[i] * (compounds[i].elements.get(el) || 0);
+        for (let i = 0; i < products.length; i++) rhs += coeffs[reactants.length + i] * (compounds[reactants.length + i].elements.get(el) || 0);
+        if (lhs !== rhs) return false;
+      }
+      return true;
+    }
+
+    function dfs(idx) {
+      if (idx === n) return check();
+      for (let c = 1; c <= 12; c++) { coeffs[idx] = c; if (dfs(idx + 1)) return true; }
+      return false;
+    }
+
+    if (!dfs(0)) return null;
+    const lhs = reactants.map((r, i) => (coeffs[i] === 1 ? '' : String(coeffs[i])) + r).join(' + ');
+    const rhs = products.map((p, i) => (coeffs[reactants.length + i] === 1 ? '' : String(coeffs[reactants.length + i])) + p).join(' + ');
+    return lhs + ' → ' + rhs;
+  }
+
+  const input = document.getElementById('eq-input');
+  const btn = document.getElementById('eq-balance-btn');
+  const result = document.getElementById('eq-result');
 
   btn.addEventListener('click', () => {
     const eq = input.value.trim();
     if (!eq) { result.innerHTML = ''; return; }
     const balanced = balanceEquation(eq);
     result.innerHTML = balanced
-      ? `<span class="result-ok">${balanced}</span>`
-      : '<span class="result-err">Could not balance. Check your equation format.</span>';
+      ? '<span class="result-ok">' + balanced + '</span>'
+      : '<span class="result-err lang-en">Could not balance. Check your equation format.</span><span class="result-err lang-zh">无法配平，请检查方程式格式</span>';
   });
   input.addEventListener('keydown', (e) => { if (e.key === 'Enter') btn.click(); });
 </script>
@@ -36,19 +96,20 @@
     color: var(--text-primary); font-family: var(--font-mono); font-size: 0.95rem;
     outline: none; transition: border-color 0.2s;
   }
-  .balancer-input:focus { border-color: var(--border-glow); }
+  .balancer-input:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.12); }
   .balancer-input::placeholder { color: var(--text-dim); font-family: var(--font-body); }
   .balance-btn {
     padding: 0.7rem 1.5rem;
-    background: linear-gradient(135deg, rgba(124,77,255,0.3), rgba(64,196,255,0.2));
-    border: 1px solid var(--border-glow); border-radius: var(--radius-md);
+    background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+    border: none; border-radius: var(--radius-md);
     color: #fff; font-family: var(--font-display); font-weight: 600;
     font-size: 0.9rem; cursor: pointer; white-space: nowrap; transition: all 0.2s;
+    box-shadow: 0 2px 12px rgba(74, 158, 255, 0.2);
   }
-  .balance-btn:hover { background: linear-gradient(135deg, rgba(124,77,255,0.5), rgba(64,196,255,0.35)); box-shadow: 0 0 20px rgba(124,77,255,0.3); }
+  .balance-btn:hover { box-shadow: 0 4px 24px rgba(74, 158, 255, 0.35); transform: translateY(-1px); }
   .balancer-result { margin-top: 1rem; padding: 0.75rem 1rem; min-height: 2.5rem; display: flex; align-items: center; }
-  .result-ok { font-family: var(--font-mono); font-size: 1.1rem; color: var(--cat-nonmetal); font-weight: 600; }
-  .result-err { color: var(--cat-alkali); font-size: 0.9rem; }
+  .result-ok { font-family: var(--font-mono); font-size: 1.1rem; color: var(--accent-green); font-weight: 600; }
+  .result-err { color: var(--accent-red); font-size: 0.9rem; }
   .balancer-hint { text-align: center; color: var(--text-dim); font-size: 0.75rem; margin-top: 1rem; }
-  .balancer-hint code { background: rgba(255,255,255,0.06); padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-family: var(--font-mono); }
+  .balancer-hint code { background: rgba(0,0,0,0.04); padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-family: var(--font-mono); }
 </style>

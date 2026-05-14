@@ -2,6 +2,9 @@
 import ElementTile from './ElementTile.astro';
 import { getAllElements } from '../utils/elements';
 
+interface Props { locale?: string; }
+const { locale = 'en' } = Astro.props;
+
 const elements = getAllElements();
 const mainElements = elements.filter(e => e.row <= 7);
 const lanthanides = elements.filter(e => e.row === 8);
@@ -10,23 +13,23 @@ const actinides = elements.filter(e => e.row === 9);
 
 <div class="table-scroll">
   <div class="periodic-table" role="grid" aria-label="Periodic Table of Elements">
-    {mainElements.map(e => <ElementTile element={e} />)}
+    {mainElements.map(e => <ElementTile element={e} locale={locale} />)}
   </div>
 
   <div class="f-block-label lanthanide-label">
-    <span>Lanthanides</span>
-    <span class="f-label-zh">镧系</span>
+    <span class="lang-en">Lanthanides</span>
+    <span class="lang-zh">镧系</span>
   </div>
   <div class="periodic-table periodic-table-f lanthanide-row" role="grid" aria-label="Lanthanides">
-    {lanthanides.map(e => <ElementTile element={e} />)}
+    {lanthanides.map(e => <ElementTile element={e} locale={locale} />)}
   </div>
 
   <div class="f-block-label actinide-label">
-    <span>Actinides</span>
-    <span class="f-label-zh">锕系</span>
+    <span class="lang-en">Actinides</span>
+    <span class="lang-zh">锕系</span>
   </div>
   <div class="periodic-table periodic-table-f actinide-row" role="grid" aria-label="Actinides">
-    {actinides.map(e => <ElementTile element={e} />)}
+    {actinides.map(e => <ElementTile element={e} locale={locale} />)}
   </div>
 </div>
 

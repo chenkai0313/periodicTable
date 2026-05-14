@@ -1,0 +1,30 @@
+---
+import Layout from '../../components/Layout.astro';
+const today = '2026-05-14';
+
+export function getStaticPaths() {
+  return [{ params: { locale: 'en' } }, { params: { locale: 'zh' } }];
+}
+
+const locale = Astro.params.locale || 'en';
+---
+<Layout
+  title={locale === 'zh' ? '联系我们 — PeriodicTable 团队' : 'Contact Us — PeriodicTable Team'}
+  description={locale === 'zh' ? '有关于元素周期表网站的问题或建议？请通过邮箱 ckck0313@gmail.com 联系我们，通常在 2-3 个工作日内回复。' : 'Questions or suggestions about the periodic table website? Reach us at ckck0313@gmail.com. We respond within 2-3 business days.'}
+  pathname={`/${locale}/contact`}
+  ogType="article"
+  currentLocale={locale}
+>
+<div class="page-root"><article class="page-article glass-glow">
+  <h1><span class="lang-en">Contact Us</span><span class="lang-zh">联系我们</span></h1>
+  <p class="lang-en">Email: <a href="mailto:ckck0313@gmail.com">ckck0313@gmail.com</a>. We respond within 2-3 business days.</p>
+  <p class="lang-zh">邮箱：<a href="mailto:ckck0313@gmail.com">ckck0313@gmail.com</a>。我们通常在 2-3 个工作日内回复。</p>
+</article></div>
+</Layout>
+<style>
+  .page-root { max-width: 760px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+  .page-article { padding: 2rem 2.5rem; border-radius: var(--radius-lg); }
+  .page-article h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: 1.5rem; }
+  .page-article p { font-size: 0.95rem; line-height: 1.75; color: var(--text-secondary); }
+  .page-article a { color: var(--accent-blue); text-decoration: underline; }
+</style>

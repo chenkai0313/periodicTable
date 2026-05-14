@@ -7,28 +7,201 @@ import '../styles/global.css';
 interface Props {
   title: string;
   description?: string;
+  pathname?: string;
+  ogImage?: string;
+  ogType?: string;
+  currentLocale?: string;
 }
 
-const { title, description = 'Interactive periodic table of elements with properties, learning tools, and bilingual support.' } = Astro.props;
+const SITE_URL = 'https://periodictable.app';
+const SITE_NAME = 'PeriodicTable';
+const {
+  title,
+  description = 'Interactive periodic table of elements with detailed properties, chemistry learning tools, bilingual support (English / Chinese), and comprehensive element data.',
+  pathname = '/',
+  ogImage = '/favicon.svg',
+  ogType = 'website',
+  currentLocale,
+} = Astro.props;
+
+// Locale from prop, Astro global, or default to 'en'
+const locale: string = currentLocale || (Astro as any).currentLocale || 'en';
+
+// Pathname already includes locale prefix from the [locale] page
+const cleanPath = pathname.replace(/\/$/, '') || '/';
+const canonicalUrl = SITE_URL + cleanPath;
+
+// Build alternate locale URLs by swapping the prefix
+const pathWithoutLocale = cleanPath.replace(/^\/[a-z]{2}(\/|$)/, '/');
+const enUrl = SITE_URL + '/en' + (pathWithoutLocale === '/' ? '' : pathWithoutLocale);
+const zhUrl = SITE_URL + '/zh' + (pathWithoutLocale === '/' ? '' : pathWithoutLocale);
+
+// OG locale
+const ogLocale = locale === 'zh' ? 'zh_CN' : 'en_US';
+
+const fullTitle = `${title} | ${SITE_NAME}`;
+const ogTitle = fullTitle;
+const ogDesc = description.slice(0, 160);
+const imageUrl = ogImage.startsWith('http') ? ogImage : SITE_URL + ogImage;
 ---
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang={locale === 'zh' ? 'zh-CN' : 'en'} data-lang={locale}>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{title} | PeriodicTable</title>
-  <meta name="description" content={description} />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <meta name="author" content="PeriodicTable Team" />
+
+  <title>{fullTitle}</title>
+  <meta name="description" content={ogDesc} />
+  <meta name="theme-color" content="#ffffff" />
+
+  <!-- Canonical -->
+  <link rel="canonical" href={canonicalUrl} />
+
+  <!-- hreflang -->
+  <link rel="alternate" hreflang="en" href={enUrl} />
+  <link rel="alternate" hreflang="zh-CN" href={zhUrl} />
+  <link rel="alternate" hreflang="x-default" href={enUrl} />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content={ogType} />
+  <meta property="og:site_name" content={SITE_NAME} />
+  <meta property="og:title" content={ogTitle} />
+  <meta property="og:description" content={ogDesc} />
+  <meta property="og:url" content={canonicalUrl} />
+  <meta property="og:image" content={imageUrl} />
+  <meta property="og:image:width" content="512" />
+  <meta property="og:image:height" content="512" />
+  <meta property="og:locale" content={ogLocale} />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content={ogTitle} />
+  <meta name="twitter:description" content={ogDesc} />
+  <meta name="twitter:image" content={imageUrl} />
+
+  <!-- JSON-LD WebSite -->
+  <script type="application/ld+json" set:html={JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: SITE_NAME,
+    url: SITE_URL,
+    description: description,
+    inLanguage: [locale === 'zh' ? 'zh-CN' : 'en'],
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: SITE_URL + '/?search={search_term_string}',
+      'query-input': 'required name=search_term_string',
+    },
+  })}></script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <style is:global>
+    /* Server-rendered language visibility: only show the active locale at build time */
+    html[data-lang="en"] .lang-zh { display: none !important; }
+    html[data-lang="zh"] .lang-en { display: none !important; }
+
+    .lang-toggle {
+      display: inline-flex; align-items: center; gap: 0;
+      background: var(--bg-card); border: 1px solid var(--border-glass);
+      border-radius: var(--radius-xl); overflow: hidden;
+      margin-left: 0.5rem; flex-shrink: 0;
+    }
+    .lang-option {
+      padding: 0.3rem 0.55rem; font-size: 0.7rem; font-weight: 600;
+      font-family: var(--font-body); cursor: pointer; transition: all 0.2s;
+      background: none; border: none; color: var(--text-dim);
+      line-height: 1.2;
+    }
+    .lang-option.is-active {
+      background: var(--text-primary); color: #fff;
+    }
+    .lang-option:hover:not(.is-active) { color: var(--text-primary); }
+  </style>
+
+  <!-- Client-side language init: respects URL locale, stores preference for return visits -->
+  <script is:inline>
+    (function(){
+      var html = document.documentElement;
+      var urlLocale = html.getAttribute('data-lang');
+      var stored = localStorage.getItem('pt-lang');
+      if (stored && stored !== urlLocale) {
+        // User prefers different language — redirect once
+        var path = window.location.pathname.replace(/^\/[a-z]{2}(\/|$)/, '/' + stored + '$1');
+        if (path !== window.location.pathname) {
+          window.location.replace(path);
+          return;
+        }
+      }
+      // Ensure locale data attribute matches URL
+      if (!stored) {
+        localStorage.setItem('pt-lang', urlLocale || 'en');
+      }
+    })();
+  </script>
 </head>
 <body>
   <ParticleBg />
-  <Navbar />
+  <Navbar currentLocale={locale} />
   <main>
     <slot />
   </main>
-  <CompareDrawer />
+  <CompareDrawer locale={locale} />
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-links">
+        <a href={locale === 'zh' ? '/zh/about' : '/en/about'}><span class="lang-en">About</span><span class="lang-zh">关于</span></a>
+        <a href={locale === 'zh' ? '/zh/contact' : '/en/contact'}><span class="lang-en">Contact</span><span class="lang-zh">联系</span></a>
+        <a href={locale === 'zh' ? '/zh/privacy' : '/en/privacy'}><span class="lang-en">Privacy</span><span class="lang-zh">隐私</span></a>
+        <a href={locale === 'zh' ? '/zh/terms' : '/en/terms'}><span class="lang-en">Terms</span><span class="lang-zh">条款</span></a>
+        <a href={locale === 'zh' ? '/zh/cookie-policy' : '/en/cookie-policy'}><span class="lang-en">Cookies</span><span class="lang-zh">Cookie</span></a>
+        <a href={locale === 'zh' ? '/zh/disclaimer' : '/en/disclaimer'}><span class="lang-en">Disclaimer</span><span class="lang-zh">免责</span></a>
+      </div>
+      <p class="footer-copy">&copy; 2026 PeriodicTable. <span class="lang-en">Data sourced from IUPAC, NIST, PubChem.</span><span class="lang-zh">数据来源：IUPAC、NIST、PubChem。</span></p>
+      <div class="footer-friendly">
+        <span class="friendly-label"><span class="lang-en">Links:</span><span class="lang-zh">友情链接：</span></span>
+        <a href="https://schg.xyz/" target="_blank" rel="noopener"><span class="lang-en">Webmaster Tools</span><span class="lang-zh">站长工具</span></a>
+        <a href="https://resbu.top/" target="_blank" rel="noopener"><span class="lang-en">Online Resume Builder</span><span class="lang-zh">在线简历生成</span></a>
+      </div>
+    </div>
+  </footer>
+  <style is:global>
+    .site-footer {
+      border-top: 1px solid var(--border-glass);
+      padding: 1.5rem 2rem; margin-top: 2rem;
+    }
+    .footer-inner {
+      max-width: 1400px; margin: 0 auto;
+      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem;
+    }
+    .footer-links { display: flex; gap: 1.25rem; flex-wrap: wrap; }
+    .footer-links a {
+      color: var(--text-dim); text-decoration: none; font-size: 0.8rem;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--text-primary); }
+    .footer-copy { color: var(--text-dim); font-size: 0.75rem; }
+    .footer-friendly {
+      display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;
+      border-top: 1px solid var(--border-glass); padding-top: 0.75rem; width: 100%;
+    }
+    .friendly-label { color: var(--text-dim); font-size: 0.75rem; }
+    .footer-friendly a {
+      color: var(--text-dim); text-decoration: none; font-size: 0.75rem;
+      transition: color 0.2s;
+    }
+    .footer-friendly a:hover { color: var(--accent-blue); }
+    @media (max-width: 640px) {
+      .footer-inner { flex-direction: column; text-align: center; }
+      .footer-links { justify-content: center; }
+      .footer-friendly { justify-content: center; }
+    }
+  </style>
 </body>
 </html>

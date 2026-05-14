@@ -1,0 +1,39 @@
+---
+import Layout from '../../components/Layout.astro';
+const today = '2026-05-14';
+
+export function getStaticPaths() {
+  return [{ params: { locale: 'en' } }, { params: { locale: 'zh' } }];
+}
+
+const locale = Astro.params.locale || 'en';
+---
+<Layout
+  title={locale === 'zh' ? '隐私政策 — 数据保护说明' : 'Privacy Policy — Data Protection'}
+  description={locale === 'zh' ? 'PeriodicTable 隐私政策：我们不收集个人数据，无需注册，不使用追踪 cookie。唯一存储的数据是您浏览器的语言偏好设置。' : 'PeriodicTable Privacy Policy: we do not collect personal data, require registration, or use tracking cookies. Only your browser language preference is stored locally.'}
+  pathname={`/${locale}/privacy`}
+  ogType="article"
+  currentLocale={locale}
+>
+<div class="page-root"><article class="page-article glass-glow">
+  <h1><span class="lang-en">Privacy Policy</span><span class="lang-zh">隐私政策</span></h1>
+  <p class="page-date"><span class="lang-en">Effective: {today}</span><span class="lang-zh">生效日期：{today}</span></p>
+  <section class="lang-en">
+    <h2>Overview</h2>
+    <p>PeriodicTable is an educational resource. We do not collect personal data, require registration, or use tracking cookies. The only data stored is your language preference (English or Chinese) in your browser's localStorage — this never leaves your device. Google Fonts CDN may collect IP addresses per their privacy policy. Contact: <a href="mailto:ckck0313@gmail.com">ckck0313@gmail.com</a>.</p>
+  </section>
+  <section class="lang-zh">
+    <h2>概述</h2>
+    <p>PeriodicTable 是一个教育资源网站。我们不收集个人数据，不需要注册，不使用追踪 cookie。唯一存储的数据是您浏览器 localStorage 中的语言偏好（英文或中文）——这绝不会离开您的设备。Google Fonts CDN 可能根据其隐私政策收集 IP 地址。联系邮箱：<a href="mailto:ckck0313@gmail.com">ckck0313@gmail.com</a>。</p>
+  </section>
+</article></div>
+</Layout>
+<style>
+  .page-root { max-width: 760px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+  .page-article { padding: 2rem 2.5rem; border-radius: var(--radius-lg); }
+  .page-article h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .page-article h2 { font-size: 1.2rem; font-weight: 600; margin: 2rem 0 0.75rem; color: var(--text-primary); }
+  .page-article p { font-size: 0.95rem; line-height: 1.75; color: var(--text-secondary); }
+  .page-article a { color: var(--accent-blue); text-decoration: underline; }
+  .page-date { color: var(--text-dim); font-size: 0.8rem; margin-bottom: 2rem; }
+</style>

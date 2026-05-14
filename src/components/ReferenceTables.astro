@@ -11,13 +11,13 @@ const valenceEntries = Object.entries(VALENCE_DATA).map(([sym, vals]) => {
 ---
 
 <div class="ref-tabs">
-  <button class="ref-tab is-active" data-tab="valence">Common Valences</button>
-  <button class="ref-tab" data-tab="solubility">Solubility</button>
-  <button class="ref-tab" data-tab="activity">Activity Series</button>
+  <button class="ref-tab is-active" data-tab="valence"><span class="lang-en">Common Valences</span><span class="lang-zh">常见化合价</span></button>
+  <button class="ref-tab" data-tab="solubility"><span class="lang-en">Solubility</span><span class="lang-zh">溶解性表</span></button>
+  <button class="ref-tab" data-tab="activity"><span class="lang-en">Activity Series</span><span class="lang-zh">金属活动性</span></button>
 </div>
 
 <div class="ref-panel is-visible" id="panel-valence">
-  <input type="text" class="ref-search" id="valence-search" placeholder="Search element..." />
+  <input type="text" class="ref-search" id="valence-search" placeholder="Search element..." data-placeholder-en="Search element..." data-placeholder-zh="搜索元素..." />
   <div class="valence-grid" id="valence-grid">
     {valenceEntries.map(v => (
       <div class="valence-cell glass" data-symbol={v.symbol.toLowerCase()}>
@@ -32,7 +32,7 @@ const valenceEntries = Object.entries(VALENCE_DATA).map(([sym, vals]) => {
   <div class="solubility-wrap">
     <table class="solubility-table">
       <thead>
-        <tr><th>Ion</th><th>Cl⁻</th><th>SO₄²⁻</th><th>CO₃²⁻</th><th>OH⁻</th><th>NO₃⁻</th></tr>
+        <tr><th class="lang-en">Ion</th><th class="lang-zh">离子</th><th>Cl⁻</th><th>SO₄²⁻</th><th>CO₃²⁻</th><th>OH⁻</th><th>NO₃⁻</th></tr>
       </thead>
       <tbody>
         {SOLUBILITY_DATA.map(row => (
@@ -49,9 +49,9 @@ const valenceEntries = Object.entries(VALENCE_DATA).map(([sym, vals]) => {
     </table>
   </div>
   <div class="solubility-legend">
-    <span class="legend-item"><span class="legend-dot sol-s-bg"></span> Soluble</span>
-    <span class="legend-item"><span class="legend-dot sol-i-bg"></span> Insoluble</span>
-    <span class="legend-item"><span class="legend-dot sol-s2-bg"></span> Slightly soluble</span>
+    <span class="legend-item"><span class="legend-dot sol-s-bg"></span> <span class="lang-en">Soluble</span><span class="lang-zh">可溶</span></span>
+    <span class="legend-item"><span class="legend-dot sol-i-bg"></span> <span class="lang-en">Insoluble</span><span class="lang-zh">不溶</span></span>
+    <span class="legend-item"><span class="legend-dot sol-s2-bg"></span> <span class="lang-en">Slightly soluble</span><span class="lang-zh">微溶</span></span>
   </div>
 </div>
 
@@ -65,7 +65,7 @@ const valenceEntries = Object.entries(VALENCE_DATA).map(([sym, vals]) => {
         <div class="activity-badges">
           {m.reactsWater && <span class="activity-badge badge-water">H₂O</span>}
           {m.reactsAcid && <span class="activity-badge badge-acid">H⁺</span>}
-          {!m.reactsWater && !m.reactsAcid && <span class="activity-badge badge-none">noble</span>}
+          {!m.reactsWater && !m.reactsAcid && <span class="activity-badge badge-none"><span class="lang-en">noble</span><span class="lang-zh">不反应</span></span>}
         </div>
       </div>
     ))}
@@ -81,9 +81,12 @@ const valenceEntries = Object.entries(VALENCE_DATA).map(([sym, vals]) => {
     cursor: pointer; transition: all 0.2s;
   }
   .ref-tab:hover { color: var(--text-primary); border-color: var(--text-dim); }
-  .ref-tab.is-active { background: rgba(124,77,255,0.15); border-color: var(--cat-nonmetal); color: #fff; box-shadow: 0 0 14px rgba(124,77,255,0.2); }
+  .ref-tab.is-active {
+    background: var(--text-primary); border-color: var(--text-primary); color: #fff;
+    box-shadow: var(--shadow-sm);
+  }
   .ref-search { width: 100%; max-width: 320px; padding: 0.55rem 1rem; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); color: var(--text-primary); font-family: var(--font-body); font-size: 0.85rem; margin-bottom: 1rem; outline: none; }
-  .ref-search:focus { border-color: var(--border-glow); }
+  .ref-search:focus { border-color: var(--accent-blue); }
   .valence-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.4rem; }
   .valence-cell { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0.75rem; border-radius: var(--radius-sm); }
   .valence-symbol { font-family: var(--font-mono); font-weight: 700; font-size: 0.95rem; color: var(--text-primary); }
@@ -91,18 +94,18 @@ const valenceEntries = Object.entries(VALENCE_DATA).map(([sym, vals]) => {
   .solubility-wrap { overflow-x: auto; margin-bottom: 1rem; }
   .solubility-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
   .solubility-table th { padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--border-glass); color: var(--text-dim); font-weight: 500; font-size: 0.8rem; }
-  .solubility-table td { padding: 0.5rem 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.03); text-align: center; font-family: var(--font-mono); font-weight: 600; }
-  .sol-s { color: #69f0ae; }
-  .sol-i { color: #ff5252; }
-  .sol-s2 { color: #ffd740; }
+  .solubility-table td { padding: 0.5rem 0.8rem; border-bottom: 1px solid rgba(0,0,0,0.03); text-align: center; font-family: var(--font-mono); font-weight: 600; }
+  .sol-s { color: var(--accent-green); }
+  .sol-i { color: var(--accent-red); }
+  .sol-s2 { color: var(--accent-yellow); }
   .sol-- { color: var(--text-dim); }
   .ion-cell { text-align: left; color: var(--text-primary); font-weight: 500; }
-  .solubility-legend { display: flex; gap: 1.5rem; justify-content: center; font-size: 0.8rem; color: var(--text-dim); }
+  .solubility-legend { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; font-size: 0.8rem; color: var(--text-dim); }
   .legend-item { display: flex; align-items: center; gap: 0.35rem; }
   .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
-  .sol-s-bg { background: #69f0ae; }
-  .sol-i-bg { background: #ff5252; }
-  .sol-s2-bg { background: #ffd740; }
+  .sol-s-bg { background: var(--accent-green); }
+  .sol-i-bg { background: var(--accent-red); }
+  .sol-s2-bg { background: var(--accent-yellow); }
   .activity-list { display: flex; flex-direction: column; gap: 0.35rem; max-width: 500px; margin: 0 auto; }
   .activity-row { display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem 1rem; border-radius: var(--radius-sm); animation: fadeInUp 0.4s ease-out both; }
   .activity-rank { font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-dim); width: 20px; }
@@ -110,29 +113,39 @@ const valenceEntries = Object.entries(VALENCE_DATA).map(([sym, vals]) => {
   .activity-names { flex: 1; font-size: 0.8rem; color: var(--text-secondary); }
   .activity-badges { display: flex; gap: 0.3rem; }
   .activity-badge { padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.6rem; font-weight: 700; font-family: var(--font-mono); }
-  .badge-water { background: rgba(64,196,255,0.2); color: var(--cat-transition); }
-  .badge-acid { background: rgba(255,145,0,0.2); color: var(--cat-alkaline); }
-  .badge-none { background: rgba(255,255,255,0.05); color: var(--text-dim); }
+  .badge-water { background: rgba(74, 158, 255, 0.12); color: var(--accent-blue); }
+  .badge-acid { background: rgba(255, 142, 60, 0.12); color: var(--accent-orange); }
+  .badge-none { background: rgba(0,0,0,0.03); color: var(--text-dim); }
 </style>
 
 <script>
+  // Language-aware placeholder for valence search
+  const vs = document.getElementById('valence-search');
+  function updateRefPlaceholder() {
+    if (!vs) return;
+    const lang = document.documentElement.getAttribute('data-lang') || 'en';
+    vs.placeholder = lang === 'zh'
+      ? (vs.dataset.placeholderZh || '搜索元素...')
+      : (vs.dataset.placeholderEn || 'Search element...');
+  }
+  updateRefPlaceholder();
+  window.addEventListener('lang-changed', updateRefPlaceholder);
+
   document.querySelectorAll('.ref-tab').forEach(tab => {
     tab.addEventListener('click', () => {
       document.querySelectorAll('.ref-tab').forEach(t => t.classList.remove('is-active'));
       tab.classList.add('is-active');
-      const target = (tab as HTMLElement).dataset.tab;
-      document.querySelectorAll('.ref-panel').forEach(p => { (p as HTMLElement).style.display = 'none'; p.classList.remove('is-visible'); });
-      const panel = document.getElementById(`panel-${target}`);
+      const target = tab.dataset.tab;
+      document.querySelectorAll('.ref-panel').forEach(p => { p.style.display = 'none'; p.classList.remove('is-visible'); });
+      const panel = document.getElementById('panel-' + target);
       if (panel) { panel.style.display = ''; panel.classList.add('is-visible'); }
     });
   });
-  const vs = document.getElementById('valence-search');
   if (vs) {
     vs.addEventListener('input', () => {
-      const q = (vs as HTMLInputElement).value.toLowerCase();
+      const q = vs.value.toLowerCase();
       document.querySelectorAll('.valence-cell').forEach(cell => {
-        const el = cell as HTMLElement;
-        el.style.display = (el.dataset.symbol || '').includes(q) ? '' : 'none';
+        cell.style.display = (cell.dataset.symbol || '').includes(q) ? '' : 'none';
       });
     });
   }

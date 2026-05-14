@@ -1,0 +1,31 @@
+---
+import Layout from '../../../components/Layout.astro';
+import ReferenceTables from '../../../components/ReferenceTables.astro';
+
+export function getStaticPaths() {
+  return [{ params: { locale: 'en' } }, { params: { locale: 'zh' } }];
+}
+
+const locale = Astro.params.locale || 'en';
+---
+
+<Layout
+  title={locale === 'zh' ? '化学元素周期表速查 — 化合价、溶解性、金属活动性参考表' : 'Periodic Table Reference — Valences, Solubility Rules, Metal Activity Series'}
+  description={locale === 'zh' ? '化学元素周期表配套速查工具：常见元素化合价表、酸碱盐溶解性表、金属活动性顺序表。中英双语对照，适合化学学习者和教师快速查阅参考。' : 'Periodic table reference tables: common element valences, solubility rules for acids/bases/salts, and metal activity series. Bilingual quick reference for chemistry students and teachers.'}
+  pathname={`/${locale}/tools/reference`}
+  currentLocale={locale}
+>
+  <div class="tool-page">
+    <h1 class="lang-en">Quick <span class="text-gradient">Reference</span></h1>
+    <h1 class="lang-zh">化学<span class="text-gradient">速查表</span></h1>
+    <p class="tool-sub lang-en">Common valences, solubility table, and metal activity series</p>
+    <p class="tool-sub lang-zh">常见化合价、溶解性表、金属活动性顺序</p>
+    <ReferenceTables />
+  </div>
+</Layout>
+
+<style>
+  .tool-page { max-width: 900px; margin: 0 auto; padding: 3rem 1.5rem 4rem; text-align: center; }
+  .tool-sub { color: var(--text-secondary); margin-bottom: 2rem; }
+  h1 { margin-bottom: 0.5rem; }
+</style>
