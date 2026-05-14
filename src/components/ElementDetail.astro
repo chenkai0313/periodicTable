@@ -77,9 +77,9 @@ function getSafetyInfo(el: ElementData) {
         <span class="lang-zh">返回周期表</span>
       </a>
       <div class="detail-nav">
-        {e.z > 1 && <a href={`/${locale}/element/${e.z - 1}`} class="nav-arrow" title="Previous element">&larr; #{e.z - 1}</a>}
+        {e.z > 1 && <a href={`/${locale}/element/${e.z - 1}`} target="_blank" class="nav-arrow" title="Previous element">&larr; #{e.z - 1}</a>}
         <span class="nav-current">#{e.z}</span>
-        {e.z < 118 && <a href={`/${locale}/element/${e.z + 1}`} class="nav-arrow" title="Next element">#{e.z + 1} &rarr;</a>}
+        {e.z < 118 && <a href={`/${locale}/element/${e.z + 1}`} target="_blank" class="nav-arrow" title="Next element">#{e.z + 1} &rarr;</a>}
       </div>
     </div>
     <div class="detail-hero">
@@ -201,7 +201,7 @@ function getSafetyInfo(el: ElementData) {
         <h3><span class="lang-en">Related Elements (Same Group {e.group})</span><span class="lang-zh">相关元素（同第{e.group}族）</span></h3>
         <div class="related-grid">
           {sameGroup.map(el => (
-            <a href={`/${locale}/element/${el.z}`} class="related-chip" style={`--chip-color: ${getCategoryColor(el.category)}`}>
+            <a href={`/${locale}/element/${el.z}`} target="_blank" class="related-chip" style={`--chip-color: ${getCategoryColor(el.category)}`}>
               <span class="related-symbol">{el.symbol}</span>
               <span class="lang-en">{el.nameEn}</span>
               <span class="lang-zh">{el.nameZh}</span>
@@ -215,7 +215,7 @@ function getSafetyInfo(el: ElementData) {
         <h3><span class="lang-en">Same Period ({e.period})</span><span class="lang-zh">同周期（第{e.period}周期）</span></h3>
         <div class="related-grid">
           {samePeriod.map(el => (
-            <a href={`/${locale}/element/${el.z}`} class="related-chip" style={`--chip-color: ${getCategoryColor(el.category)}`}>
+            <a href={`/${locale}/element/${el.z}`} target="_blank" class="related-chip" style={`--chip-color: ${getCategoryColor(el.category)}`}>
               <span class="related-symbol">{el.symbol}</span>
               <span class="lang-en">{el.nameEn}</span>
               <span class="lang-zh">{el.nameZh}</span>
