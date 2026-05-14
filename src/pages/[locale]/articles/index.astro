@@ -1,0 +1,91 @@
+---
+import Layout from '../../../components/Layout.astro';
+
+export function getStaticPaths() {
+  return [{ params: { locale: 'en' } }, { params: { locale: 'zh' } }];
+}
+
+const locale = Astro.params.locale || 'en';
+
+const articles = [
+  {
+    slug: 'lithium-ev-batteries',
+    titleEn: 'Why Lithium Became Essential for Electric Vehicle Batteries',
+    titleZh: '为什么锂成为了电动汽车电池不可或缺的关键元素',
+    descEn: 'The chemistry, history, and global supply chain behind the lightest metal powering the EV revolution.',
+    descZh: '最轻的金属如何驱动电动汽车革命：化学原理、历史和全球供应链。',
+    date: '2026-05-14',
+  },
+  {
+    slug: 'silicon-digital-world',
+    titleEn: 'How Silicon Powers the Modern Digital World',
+    titleZh: '硅如何驱动现代数字世界：从沙子到芯片',
+    descEn: 'From beach sand to billions of transistors — how element 14 became the foundation of the Information Age.',
+    descZh: '从海滩沙粒到数十亿晶体管——14号元素如何成为信息时代的基石。',
+    date: '2026-05-14',
+  },
+  {
+    slug: 'helium-value',
+    titleEn: 'Why Helium Is More Valuable Than Most People Think',
+    titleZh: '为什么氦比大多数人想象的更有价值',
+    descEn: 'Beyond party balloons — helium\'s irreplaceable role in MRI scanners, semiconductor manufacturing, and space exploration.',
+    descZh: '超越派对气球——氦在MRI扫描仪、半导体制造和太空探索中不可替代的角色。',
+    date: '2026-05-14',
+  },
+];
+---
+
+<Layout
+  title={locale === 'zh' ? '化学元素科普文章 — 元素周期表知识库' : 'Science Articles — Periodic Table Knowledge Base'}
+  description={locale === 'zh' ? '深度化学元素科普文章：锂、硅、氦等元素的工业应用、科学原理和历史故事。持续更新中。' : 'In-depth science articles about chemical elements: lithium, silicon, helium, and more. Industrial applications, scientific principles, and history.'}
+  pathname={`/${locale}/articles`}
+  ogType="website"
+  currentLocale={locale}
+>
+  <div class="article-root">
+    <h1>
+      <span class="lang-en">Science <span class="text-gradient">Articles</span></span>
+      <span class="lang-zh">元素<span class="text-gradient">科普文章</span></span>
+    </h1>
+    <p class="subtitle">
+      <span class="lang-en">In-depth explorations of the elements that shape our world</span>
+      <span class="lang-zh">深度探索塑造我们世界的化学元素</span>
+    </p>
+
+    <div class="article-grid">
+      {articles.map(a => (
+        <a href={`/${locale}/articles/${a.slug}`} class="article-card glass-glow">
+          <h2 class="card-title">
+            <span class="lang-en">{a.titleEn}</span>
+            <span class="lang-zh">{a.titleZh}</span>
+          </h2>
+          <p class="card-desc">
+            <span class="lang-en">{a.descEn}</span>
+            <span class="lang-zh">{a.descZh}</span>
+          </p>
+          <span class="card-date">{a.date}</span>
+        </a>
+      ))}
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .article-root { max-width: 800px; margin: 0 auto; padding: 3rem 1.5rem 4rem; }
+  h1 { text-align: center; font-size: clamp(1.6rem, 4vw, 2.4rem); margin-bottom: 0.5rem; }
+  .subtitle { text-align: center; color: var(--text-secondary); margin-bottom: 2.5rem; }
+  .article-grid { display: flex; flex-direction: column; gap: 1rem; }
+  .article-card {
+    display: block; padding: 1.5rem 2rem; border-radius: var(--radius-lg);
+    text-decoration: none; transition: all 0.3s;
+    border: 1px solid var(--border-glass);
+  }
+  .article-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent-blue);
+    box-shadow: 0 8px 30px rgba(74, 158, 255, 0.1);
+  }
+  .card-title { font-size: 1.15rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; line-height: 1.4; }
+  .card-desc { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 0.75rem; }
+  .card-date { font-size: 0.75rem; color: var(--text-dim); }
+</style>
