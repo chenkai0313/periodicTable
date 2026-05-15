@@ -1,14 +1,12 @@
 ---
-import { getAllElements } from '../utils/elements';
-
 interface Props { locale?: string; }
 const { locale = 'en' } = Astro.props;
 ---
 
 <div class="compare-drawer" id="compare-drawer">
-  <div class="compare-handle" id="compare-handle">
-    <span class="compare-handle-bar"></span>
-  </div>
+  <button class="compare-handle" id="compare-handle" aria-label="Toggle compare panel">
+    <span class="compare-handle-icon"></span>
+  </button>
   <div class="compare-content" id="compare-content">
     <div class="compare-header">
       <h3><span class="lang-en">Compare Elements</span><span class="lang-zh">元素对比</span></h3>
@@ -23,19 +21,60 @@ const { locale = 'en' } = Astro.props;
 
 <style>
   .compare-drawer {
-    position: fixed; bottom: 0; left: 50%;
-    transform: translateX(-50%) translateY(calc(100% - 36px));
-    z-index: 200; width: min(600px, 95vw);
+    position: fixed; top: 72px; right: 0;
+    transform: translateX(calc(100% - 28px));
+    z-index: 200; width: 280px;
     background: var(--bg-root); border: 1px solid var(--border-glass);
-    border-bottom: none; border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    box-shadow: 0 -4px 30px rgba(0,0,0,0.08);
+    border-right: none; border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+    box-shadow: -4px 0 30px rgba(0,0,0,0.08);
     transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    max-height: calc(100vh - 100px); overflow-y: auto;
   }
-  .compare-drawer.is-open { transform: translateX(-50%) translateY(0); }
-  .compare-handle { display: flex; justify-content: center; padding: 8px 0; cursor: pointer; }
-  .compare-handle-bar { width: 36px; height: 4px; border-radius: 2px; background: var(--text-dim); transition: background 0.2s; }
-  .compare-handle:hover .compare-handle-bar { background: var(--text-secondary); }
-  .compare-content { padding: 0 1.25rem 1.25rem; display: none; }
+  .compare-drawer.is-open { transform: translateX(0); }
+
+  .compare-handle {
+    position: absolute; top: 50%; left: 0; transform: translateY(-50%);
+    width: 28px; height: 60px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+    background: var(--bg-root); border: 1px solid var(--border-glass);
+    border-right: none; padding: 0; margin: 0;
+    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+  }
+  .compare-handle:hover { background: var(--bg-card-hover); }
+  .compare-handle-icon {
+    display: block; width: 0; height: 0;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-right: 8px solid var(--text-dim);
+    transition: transform 0.3s, border-color 0.2s;
+  }
+  .compare-handle:hover .compare-handle-icon { border-right-color: var(--text-primary); }
+
+  /* When open: move handle to header area as a compact close button */
+  .compare-drawer.is-open .compare-handle {
+    top: 0.5rem; left: auto; right: 0.5rem; transform: none;
+    width: 24px; height: 24px; border-radius: 50%;
+    border: 1px solid var(--border-glass);
+  }
+  .compare-drawer.is-open .compare-handle-icon {
+    width: 10px; height: 10px; border: none;
+    position: relative;
+  }
+  .compare-drawer.is-open .compare-handle-icon::before,
+  .compare-drawer.is-open .compare-handle-icon::after {
+    content: ''; position: absolute; top: 50%; left: 50%;
+    width: 10px; height: 1.5px; background: var(--text-dim);
+    border-radius: 1px;
+  }
+  .compare-drawer.is-open .compare-handle-icon::before { transform: translate(-50%, -50%) rotate(45deg); }
+  .compare-drawer.is-open .compare-handle-icon::after { transform: translate(-50%, -50%) rotate(-45deg); }
+  .compare-drawer.is-open .compare-handle:hover .compare-handle-icon::before,
+  .compare-drawer.is-open .compare-handle:hover .compare-handle-icon::after {
+    background: var(--accent-red);
+  }
+
+  .compare-content { padding: 1rem; display: none; }
   .compare-drawer.is-open .compare-content { display: block; }
   .compare-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
   .compare-header h3 { font-size: 1rem; }
@@ -44,11 +83,11 @@ const { locale = 'en' } = Astro.props;
   .compare-view-link:hover { color: var(--text-primary); }
   .compare-clear { background: none; border: 1px solid var(--border-glass); color: var(--text-dim); padding: 0.25rem 0.75rem; border-radius: var(--radius-md); font-size: 0.75rem; cursor: pointer; transition: all 0.2s; }
   .compare-clear:hover { border-color: var(--accent-red); color: var(--accent-red); }
-  .compare-slots { display: flex; gap: 0.5rem; }
+  .compare-slots { display: flex; flex-direction: column; gap: 0.4rem; }
   .compare-slot {
-    flex: 1; min-height: 60px; border: 1px dashed rgba(0,0,0,0.10);
-    border-radius: var(--radius-md); display: flex; flex-direction: column;
-    align-items: center; justify-content: center; padding: 0.5rem;
+    min-height: 44px; border: 1px dashed rgba(0,0,0,0.10);
+    border-radius: var(--radius-md); display: flex; flex-direction: row;
+    align-items: center; justify-content: space-between; padding: 0.35rem 0.6rem;
   }
   .compare-slot.filled { border-style: solid; background: var(--bg-card); position: relative; }
   .compare-slot .slot-symbol { font-family: var(--font-mono); font-size: 1.1rem; font-weight: 700; }
@@ -66,14 +105,19 @@ const { locale = 'en' } = Astro.props;
   const slots = document.getElementById('compare-slots')!;
   const clearBtn = document.getElementById('compare-clear')!;
 
-  let isOpen = false;
-  handle.addEventListener('click', () => {
-    isOpen = !isOpen;
-    drawer.classList.toggle('is-open', isOpen);
-  });
+  function isOpen(): boolean {
+    return drawer.classList.contains('is-open');
+  }
+
+  function toggle() {
+    drawer.classList.toggle('is-open');
+  }
+
+  handle.addEventListener('click', toggle);
 
   function renderSlots() {
     const queue = getCompareQueue();
+    const lang = document.documentElement.getAttribute('data-lang') || 'en';
     slots.innerHTML = '';
     for (let i = 0; i < (queue.length > 0 ? Math.max(4, queue.length) : 4); i++) {
       const z = queue[i];
@@ -82,13 +126,14 @@ const { locale = 'en' } = Astro.props;
       div.className = `compare-slot${el ? ' filled' : ''}`;
       if (el) {
         div.innerHTML = `
-          <span class="slot-symbol" style="color:var(--cat-${el.category})">${el.symbol}</span>
-          <span class="slot-name lang-en">${el.nameEn}</span>
-          <span class="slot-name lang-zh">${el.nameZh}</span>
+          <span style="display:flex;align-items:center;gap:0.5rem;">
+            <span class="slot-symbol" style="color:var(--cat-${el.category})">${el.symbol}</span>
+            <span class="slot-name">${lang === 'zh' ? el.nameZh : el.nameEn}</span>
+          </span>
           <button class="slot-remove" data-z="${el.z}">&times;</button>
         `;
       } else {
-        div.innerHTML = '<span class="lang-en" style="color:var(--text-dim);font-size:0.7rem;">Select element</span><span class="lang-zh" style="color:var(--text-dim);font-size:0.7rem;">选择元素</span>';
+        div.innerHTML = `<span style="color:var(--text-dim);font-size:0.7rem;">${lang === 'zh' ? '选择元素' : 'Select element'}</span>`;
       }
       slots.appendChild(div);
     }
@@ -98,8 +143,9 @@ const { locale = 'en' } = Astro.props;
         removeFromCompare(parseInt((b as HTMLElement).dataset.z || '0'));
       });
     });
-    if (queue.length > 0 && !isOpen) {
-      isOpen = true; drawer.classList.add('is-open');
+    // Auto-open drawer when elements are added (uses class-based check)
+    if (queue.length > 0 && !isOpen()) {
+      drawer.classList.add('is-open');
     }
   }
 
