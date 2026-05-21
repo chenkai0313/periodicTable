@@ -7,26 +7,41 @@ const { element: e, locale = 'en' } = Astro.props;
 const glowColor = getCategoryColor(e.category);
 ---
 
-<a
-  href={`/${locale}/element/${e.z}`}
-  target="_blank"
-  class="element-tile"
-  style={[
-    `grid-column: ${e.col};`,
-    `grid-row: ${e.row};`,
-    `--tile-glow: ${glowColor};`,
-    `animation-delay: ${(e.z - 1) * 10}ms;`,
-  ].join(' ')}
-  data-category={e.category}
-  data-z={String(e.z)}
->
-  <span class="tile-z">{e.z}</span>
-  <span class="tile-symbol" style={`color:${glowColor};`}>{e.symbol}</span>
-  <span class="tile-name-en lang-en">{e.nameEn}</span>
-  <span class="tile-name-zh lang-zh">{e.nameZh}</span>
-</a>
+<div class="element-tile-wrapper">
+  <a
+    href={`/${locale}/element/${e.z}`}
+    target="_blank"
+    class="element-tile"
+    style={[
+      `grid-column: ${e.col};`,
+      `grid-row: ${e.row};`,
+      `--tile-glow: ${glowColor};`,
+      `animation-delay: ${(e.z - 1) * 10}ms;`,
+    ].join(' ')}
+    data-category={e.category}
+    data-z={String(e.z)}
+  >
+    <span class="tile-z">{e.z}</span>
+    <span class="tile-symbol" style={`color:${glowColor};`}>{e.symbol}</span>
+    <span class="tile-name-en lang-en">{e.nameEn}</span>
+    <span class="tile-name-zh lang-zh">{e.nameZh}</span>
+  </a>
+  <button
+    class="tile-compare-btn"
+    data-z={String(e.z)}
+    data-symbol={e.symbol}
+    data-name-en={e.nameEn}
+    data-name-zh={e.nameZh}
+    data-category={e.category}
+    aria-label="Add to compare"
+    title="Add to Compare / 加入对比"
+  >+</button>
+</div>
 
 <style>
+  .element-tile-wrapper {
+    position: relative;
+  }
   .element-tile {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     padding: 3px 3px; border-radius: var(--radius-sm);
@@ -35,6 +50,7 @@ const glowColor = getCategoryColor(e.category);
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative; cursor: pointer; animation: fadeInUp 0.5s ease-out both;
     min-width: 0; user-select: none; -webkit-tap-highlight-color: transparent;
+    width: 100%; height: 100%; box-sizing: border-box;
   }
   .element-tile:hover, .element-tile:focus-visible {
     transform: translateY(-3px) scale(1.08); background: var(--bg-card-hover);
@@ -57,6 +73,33 @@ const glowColor = getCategoryColor(e.category);
   }
   .tile-name-zh { font-size: 0.65rem; color: var(--text-secondary); line-height: 1.2; font-weight: 500; }
 
+  .tile-compare-btn {
+    position: absolute; top: 2px; right: 2px;
+    width: 18px; height: 18px; padding: 0;
+    border-radius: 50%; border: 1px solid var(--border-glass);
+    background: var(--bg-card); color: var(--text-dim);
+    font-size: 0.75rem; font-weight: 700; line-height: 1;
+    cursor: pointer; transition: all 0.2s;
+    opacity: 0; z-index: 11;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .element-tile-wrapper:hover .tile-compare-btn,
+  .tile-compare-btn.is-added {
+    opacity: 1;
+  }
+  .tile-compare-btn:hover {
+    border-color: var(--accent-blue); color: var(--accent-blue);
+    background: color-mix(in srgb, var(--accent-blue) 8%, var(--bg-card));
+  }
+  .tile-compare-btn.is-added {
+    border-color: var(--accent-green); color: #fff;
+    background: var(--accent-green);
+  }
+  /* Always show on touch devices */
+  @media (hover: none) {
+    .tile-compare-btn { opacity: 0.6; }
+  }
+
   :global(.category-filtering) .element-tile:not(.category-match),
   :global(.search-filtering) .element-tile:not(.search-match) {
     opacity: 0.10; filter: grayscale(0.7) brightness(0.6); pointer-events: none;
@@ -68,3 +111,45 @@ const glowColor = getCategoryColor(e.category);
     box-shadow: 0 0 14px color-mix(in srgb, var(--tile-glow) 25%, transparent);
   }
 </style>
+
+<script>
+  import { addToCompare, removeFromCompare, isInCompare } from '../utils/compare';
+
+  function initCompareButtons() {
+    document.querySelectorAll('.tile-compare-btn').forEach(btn => {
+      const z = parseInt((btn as HTMLElement).dataset.z || '0');
+      updateBtnState(btn as HTMLElement, z);
+
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const z = parseInt((btn as HTMLElement).dataset.z || '0');
+        if (isInCompare(z)) {
+          removeFromCompare(z);
+        } else {
+          addToCompare(z);
+        }
+      });
+    });
+  }
+
+  function updateBtnState(btn: HTMLElement, z: number) {
+    if (isInCompare(z)) {
+      btn.classList.add('is-added');
+      btn.textContent = '✓';
+    } else {
+      btn.classList.remove('is-added');
+      btn.textContent = '+';
+    }
+  }
+
+  function updateAllBtns() {
+    document.querySelectorAll('.tile-compare-btn').forEach(btn => {
+      const z = parseInt((btn as HTMLElement).dataset.z || '0');
+      updateBtnState(btn as HTMLElement, z);
+    });
+  }
+
+  initCompareButtons();
+  window.addEventListener('compare-updated', updateAllBtns);
+</script>

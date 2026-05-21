@@ -15,8 +15,10 @@ const locale = Astro.params.locale || 'en';
   currentLocale={locale}
 >
   <div class="compare-page">
-    <h1 class="compare-title lang-en">Element <span class="text-gradient">Comparison</span></h1>
-    <h1 class="compare-title lang-zh">元素<span class="text-gradient">对比</span></h1>
+    <h1 class="compare-title">
+      <span class="lang-en">Element <span class="text-gradient">Comparison</span></span>
+      <span class="lang-zh">元素<span class="text-gradient">对比</span></span>
+    </h1>
     <p class="compare-sub lang-en">Select 2&ndash;4 elements from the periodic table or detail pages</p>
     <p class="compare-sub lang-zh">从周期表或详情页选择 2-4 个元素进行对比</p>
     <div class="compare-table-wrap" id="compare-table-wrap">
@@ -95,7 +97,7 @@ const locale = Astro.params.locale || 'en';
 
     let html = `<div style="overflow-x:auto"><table class="compare-table"><thead><tr><th>${isZh ? '属性' : 'Property'}</th>`;
     for (const el of elements) {
-      html += `<th style="color:var(--cat-${el.category})">${el.symbol}<br><small><span class="lang-en">${el.nameEn}</span><span class="lang-zh">${el.nameZh}</span></small></th>`;
+      html += `<th style="color:var(--cat-${el.category})">${el.symbol}<br><small>${isZh ? el.nameZh : el.nameEn}</small></th>`;
     }
     html += '</tr></thead><tbody>';
     for (const prop of props) {

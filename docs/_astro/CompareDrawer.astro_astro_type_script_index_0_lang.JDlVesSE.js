@@ -1,6 +1,0 @@
-import{c as m,g as d,r as i}from"./compare.CoCep3zk.js";import{g as p}from"./elements.DM9AUPxH.js";const r=document.getElementById("compare-drawer"),g=document.getElementById("compare-handle"),o=document.getElementById("compare-slots"),u=document.getElementById("compare-clear");let n=!1;g.addEventListener("click",()=>{n=!n,r.classList.toggle("is-open",n)});function c(){const s=d();o.innerHTML="";for(let t=0;t<(s.length>0?Math.max(4,s.length):4);t++){const a=s[t],e=a?p(a):null,l=document.createElement("div");l.className=`compare-slot${e?" filled":""}`,e?l.innerHTML=`
-          <span class="slot-symbol" style="color:var(--cat-${e.category})">${e.symbol}</span>
-          <span class="slot-name lang-en">${e.nameEn}</span>
-          <span class="slot-name lang-zh">${e.nameZh}</span>
-          <button class="slot-remove" data-z="${e.z}">&times;</button>
-        `:l.innerHTML='<span class="lang-en" style="color:var(--text-dim);font-size:0.7rem;">Select element</span><span class="lang-zh" style="color:var(--text-dim);font-size:0.7rem;">选择元素</span>',o.appendChild(l)}o.querySelectorAll(".slot-remove").forEach(t=>{t.addEventListener("click",a=>{a.stopPropagation(),i(parseInt(t.dataset.z||"0"))})}),s.length>0&&!n&&(n=!0,r.classList.add("is-open"))}c();window.addEventListener("compare-updated",c);u.addEventListener("click",m);
