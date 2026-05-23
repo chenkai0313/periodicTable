@@ -3,7 +3,7 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
-  site: 'https://ptable.top',
+  site: 'https://aadsdh.com',
   integrations: [sitemap({
     i18n: {
       defaultLocale: 'en',
@@ -13,7 +13,6 @@ export default defineConfig({
       },
     },
   })],
-  outDir: 'docs',
   build: {
     format: 'directory',
   },
