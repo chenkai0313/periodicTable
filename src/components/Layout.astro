@@ -149,6 +149,15 @@ const imageUrl = ogImage.startsWith('http') ? ogImage : SITE_URL + ogImage;
   </script>
 
   <!-- Baidu Analytics -->
+  <script is:inline>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?65006fde93660825ceba27d3db04c946";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
 </head>
 <body>
   <ParticleBg />
